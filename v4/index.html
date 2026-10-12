@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr" class="verrou">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oracle · AWE Ritual</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AWE Ritual">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2e9e4">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#160e1a">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../icones/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../icones/icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&amp;family=EB+Garamond:ital,wght@0,400;0,500;1,400&amp;display=swap">
+<link rel="stylesheet" href="style.css?v=202610120823340200">
+<!-- Contenu masqué tant que le compte admin n'est pas confirmé (commun.js → AWE.garder) -->
+<style>html.verrou body{visibility:hidden}</style>
+<script>window.DERNIERE_MAJ = '2026-10-12T08:23:34+02:00';</script>
+</head>
+<body>
+<div class="lueur" id="lueur" aria-hidden="true"></div>
+<main>
+  <header class="tete">
+    <a class="retour" href="../" aria-label="Retour au menu">‹ Menu</a>
+    <span class="petit" id="date"></span>
+    <button type="button" class="son" id="son" aria-pressed="true" aria-label="Son du bol">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4z"/><path class="ondes" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+    </button>
+  </header>
+
+  <!-- 1 · L'autel -->
+  <section class="autel" id="autel">
+    <h1>Oracle</h1>
+    <button type="button" class="bougie" id="bougie" aria-describedby="consigneBougie">
+      <span class="flamme" aria-hidden="true"><i></i></span>
+      <svg viewBox="0 0 80 150" aria-hidden="true">
+        <line class="meche" x1="40" y1="22" x2="40" y2="36"/>
+        <rect class="cire" x="20" y="34" width="40" height="96" rx="4"/>
+        <path class="coulure" d="M24 34v14a3 3 0 0 0 6 0V34M46 34v22a3 3 0 0 0 6 0V34"/>
+        <ellipse class="socle" cx="40" cy="134" rx="34" ry="8"/>
+      </svg>
+      <span class="anneauAppui" aria-hidden="true"></span>
+    </button>
+    <p class="consigne" id="consigneBougie">Garde le doigt sur la mèche pour allumer la bougie</p>
+  </section>
+
+  <!-- 2 · La question -->
+  <section class="question" id="question" hidden>
+    <label for="texteQuestion" class="petit">Ta question intérieure (facultatif)</label>
+    <textarea id="texteQuestion" rows="2" maxlength="140" placeholder="Ce que j'ai besoin de comprendre aujourd'hui…" enterkeyhint="done"></textarea>
+    <button type="button" class="principal" id="melanger">Mélanger les cartes</button>
+  </section>
+
+  <!-- 3 · Le tirage -->
+  <section class="tirage" id="tirage" hidden>
+    <p class="consigne" id="consigneTirage">Fais glisser les cartes. Touche celle qui t'appelle.</p>
+    <div class="eventail" id="eventail" role="listbox" aria-label="Cartes face cachée"></div>
+  </section>
+
+  <!-- 4 · La révélation -->
+  <section class="revelation" id="revelation" hidden>
+    <div class="scene">
+      <div class="carte" id="carte">
+        <div class="dos" aria-hidden="true"></div>
+        <div class="face">
+          <span class="num" id="cNum"></span>
+          <svg class="symbole" id="cSymbole" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
+          <span class="nomCarte" id="cNom"></span>
+          <span class="motCle" id="cMot"></span>
+        </div>
+      </div>
+    </div>
+    <div class="message" id="message">
+      <p class="votreQuestion" id="cQuestionPosee" hidden></p>
+      <p class="texte" id="cMessage"></p>
+      <div class="bloc"><span class="petit">À porter aujourd'hui</span><p id="cQuestion"></p></div>
+      <div class="bloc"><span class="petit">Geste</span><p id="cGeste"></p></div>
+      <p class="petit cielLigne" id="cCiel"></p>
+      <button type="button" class="lien" id="refaire">Refaire le tirage</button>
+    </div>
+  </section>
+
+  <!-- Journal -->
+  <section class="journal" id="journal" hidden>
+    <h2 class="petit">Tes derniers tirages</h2>
+    <ol id="liste"></ol>
+  </section>
+
+  <p class="note">Pour l'introspection, pas une prédiction ni un avis médical. Tes tirages restent dans ce navigateur.</p>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="../commun.js?v=202610120823340200"></script>
+<script>AWE.garder('../');AWE.enregistrerSW('../');AWE.verifierVersion();</script>
+<script src="../ciel.js?v=202610120823340200"></script>
+<script src="app.js?v=202610120823340200"></script>
+</body>
+</html>

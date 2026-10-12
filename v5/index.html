@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr" class="verrou">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chakras · AWE Ritual</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AWE Ritual">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f4fa">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0f1c">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../icones/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../icones/icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="style.css?v=202610120823340200">
+<!-- Contenu masqué tant que le compte admin n'est pas confirmé (commun.js → AWE.garder) -->
+<style>html.verrou body{visibility:hidden}</style>
+<script>window.DERNIERE_MAJ = '2026-10-12T08:23:34+02:00';</script>
+</head>
+<body>
+<main>
+  <header class="tete">
+    <a class="retour" href="../" aria-label="Retour au menu">‹ Menu</a>
+    <span class="petit" id="date"></span>
+    <button type="button" class="son" id="son" aria-pressed="true" aria-label="Son">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4z"/><path class="ondes" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+    </button>
+  </header>
+
+  <div class="titre">
+    <h1>Chakras</h1>
+    <p class="sous" id="sous">Un scan du corps énergétique, de la racine à la couronne.</p>
+  </div>
+
+  <div class="corps">
+    <svg class="silhouette" id="silhouette" viewBox="0 0 200 250" aria-hidden="true">
+      <defs>
+        <filter id="flou" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      <g class="forme">
+        <ellipse cx="100" cy="212" rx="90" ry="24"/>
+        <path d="M68 80Q100 68 132 80Q146 86 147 112L151 184Q151 196 138 198H62Q49 196 49 184L53 112Q54 86 68 80Z"/>
+        <path class="bras" d="M62 92Q42 132 46 170Q48 190 74 198M138 92Q158 132 154 170Q152 190 126 198"/>
+        <rect x="91" y="56" width="18" height="18" rx="6"/>
+        <circle cx="100" cy="42" r="19"/>
+      </g>
+      <line class="colonne" x1="100" y1="20" x2="100" y2="206"/>
+      <rect class="montee" id="montee" x="98.5" y="20" width="3" height="186" rx="1.5"/>
+      <g id="points"></g>
+    </svg>
+  </div>
+
+  <!-- Scan -->
+  <section class="scan" id="scan" aria-live="polite">
+    <div class="pas" id="pas" aria-hidden="true"></div>
+    <span class="petit" id="sNom"></span>
+    <h2 id="sTitre"></h2>
+    <p class="sous" id="sConsigne"></p>
+    <div class="etats" role="group" aria-label="Comment le ressens-tu ?">
+      <button type="button" data-e="0"><b>Contracté</b><span>fermé, lourd, absent</span></button>
+      <button type="button" data-e="1"><b>Fluide</b><span>présent, tranquille</span></button>
+      <button type="button" data-e="2"><b>Agité</b><span>trop plein, ça déborde</span></button>
+    </div>
+    <button type="button" class="lien" id="retourScan" hidden>‹ Chakra précédent</button>
+  </section>
+
+  <!-- Résultat -->
+  <section class="resultat" id="resultat" hidden>
+    <div class="carteFocus" id="carteFocus">
+      <span class="petit">Centre à soigner aujourd'hui</span>
+      <h2 id="rTitre"></h2>
+      <p class="raison" id="rRaison"></p>
+      <dl>
+        <div><dt>Bija</dt><dd id="rBija"></dd></div>
+        <div><dt>Fréquence</dt><dd id="rHz"></dd></div>
+        <div><dt>Posture</dt><dd id="rPosture"></dd></div>
+        <div><dt>Mudra</dt><dd id="rMudra"></dd></div>
+      </dl>
+      <p class="affirmation" id="rAffirmation"></p>
+      <button type="button" class="secondaire" id="ecouter">Écouter la fréquence</button>
+    </div>
+
+    <div class="carteMedit">
+      <span class="petit">Méditation de l'alignement · 3 min 30</span>
+      <p class="sous">Sept centres, trois souffles chacun. La lumière monte le long de la colonne ; chante le bija à chaque expiration.</p>
+      <div class="guide" id="guide" hidden>
+        <span class="bija" id="gBija"></span>
+        <span class="petit" id="gEtape"></span>
+      </div>
+      <button type="button" class="principal" id="mediter">Commencer</button>
+    </div>
+    <button type="button" class="lien" id="refaire">Refaire le scan</button>
+  </section>
+
+  <p class="note">Pour l'introspection et le bien-être, pas un avis médical.</p>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="../commun.js?v=202610120823340200"></script>
+<script>AWE.garder('../');AWE.enregistrerSW('../');AWE.verifierVersion();</script>
+<script src="../ciel.js?v=202610120823340200"></script>
+<script src="app.js?v=202610120823340200"></script>
+</body>
+</html>

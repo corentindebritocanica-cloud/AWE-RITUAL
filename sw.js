@@ -1,4 +1,4 @@
-// Service worker unique d'AWE Ritual (portée racine : accueil + v1/ + v2/ = une seule app installée).
+// Service worker unique d'AWE Ritual (portée racine : accueil + v1/ à v6/ = une seule app installée).
 // Code (HTML/CSS/JS) : réseau d'abord, repli sur le cache après 4 s ou hors ligne.
 // Icônes, polices, SDK Firebase : cache d'abord.
 // ⚠️ CACHE_NAME est mis à jour automatiquement par .github/workflows/auto-version.yml à chaque push.
@@ -10,7 +10,12 @@ const DELAI_RESEAU_MS = 4000;
 const CODE = [
   './', './index.html', './style.css', './app.js', './commun.js',
   './v1/', './v1/index.html', './v1/style.css', './v1/app.js',
-  './v2/', './v2/index.html', './v2/style.css', './v2/app.js'
+  './v2/', './v2/index.html', './v2/style.css', './v2/app.js',
+  './ciel.js',
+  './v3/', './v3/index.html', './v3/style.css', './v3/app.js',
+  './v4/', './v4/index.html', './v4/style.css', './v4/app.js',
+  './v5/', './v5/index.html', './v5/style.css', './v5/app.js',
+  './v6/', './v6/index.html', './v6/style.css', './v6/app.js'
 ];
 const ANNEXES = [
   './manifest.json', './icones/icone-192.png', './icones/icone-512.png',

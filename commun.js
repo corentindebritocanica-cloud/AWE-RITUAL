@@ -45,7 +45,7 @@
     });
   }
 
-  /* Pages V1/V2 : le contenu reste masqué (classe « verrou » sur <html>) tant que
+  /* Pages prototypes : le contenu reste masqué (classe « verrou » sur <html>) tant que
      le compte admin n'est pas confirmé ; sinon retour à l'accueil. */
   async function garder(racine) {
     const s = await statut();
@@ -53,7 +53,7 @@
     document.documentElement.classList.remove('verrou');
   }
 
-  /* Service worker unique, portée racine (accueil + V1 + V2 = une seule app installée). */
+  /* Service worker unique, portée racine (accueil + prototypes = une seule app installée). */
   function enregistrerSW(racine) {
     if (!('serviceWorker' in navigator)) return;
     navigator.serviceWorker.register(racine + 'sw.js', { scope: racine }).catch(() => {});

@@ -17,6 +17,11 @@ on:
       - 'manifest.json'
       - 'v1/**'
       - 'v2/**'
+      - 'v3/**'
+      - 'v4/**'
+      - 'v5/**'
+      - 'v6/**'
+      - 'ciel.js'
   workflow_dispatch:
 
 permissions:
@@ -41,9 +46,9 @@ jobs:
           set -euo pipefail
           NOW=$(TZ=Europe/Paris date +%Y-%m-%dT%H:%M:%S%:z)
           VER=$(printf '%s' "$NOW" | tr -dc '0-9')
-          for F in index.html v1/index.html v2/index.html; do
+          for F in index.html v1/index.html v2/index.html v3/index.html v4/index.html v5/index.html v6/index.html; do
             sed -i -E "s/(DERNIERE_MAJ = ')[^']*(')/\1${NOW}\2/" "$F"
-            sed -i -E "s/(style\.css\?v=)[0-9]*/\1${VER}/; s/(app\.js\?v=)[0-9]*/\1${VER}/; s/(commun\.js\?v=)[0-9]*/\1${VER}/" "$F"
+            sed -i -E "s/(style\.css\?v=)[0-9]*/\1${VER}/; s/(app\.js\?v=)[0-9]*/\1${VER}/; s/(commun\.js\?v=)[0-9]*/\1${VER}/; s/(ciel\.js\?v=)[0-9]*/\1${VER}/" "$F"
             test "$(grep -c "DERNIERE_MAJ = '${NOW}'" "$F")" = "1"
             test "$(grep -c "commun\.js?v=${VER}" "$F")" = "1"
           done

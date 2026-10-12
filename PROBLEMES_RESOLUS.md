@@ -16,6 +16,12 @@ Rappel des pièges déjà connus sur PORTAIL-DUO (détail dans GUIDE_PWA_IOS.md)
 
 ---
 
+## 2026-10-12 · Tests Playwright : le service worker contourne les bouchons Firebase
+- **Symptôme** : en test local, après avoir ouvert l'accueil, V3 renvoyait vers l'accueil (garde admin refusée).
+- **Cause** : le service worker enregistré sur l'accueil récupère lui-même le SDK Firebase sur gstatic ; les `route()` Playwright qui remplacent le SDK par un faux compte admin ne s'appliquent plus.
+- **Solution** : contexte de test créé avec `service_workers='block'`.
+- **À retenir** : bloquer les service workers dès qu'un test remplace des scripts réseau.
+
 ## 2026-10-12 · Mise en place du dépôt (pièges évités dès le départ)
 
 - **Bande de couleur sous la barre d'accueil (V1)** : V1 est un écran fixe en canvas (`body{overflow:hidden}`), le cas qui provoque la zone hors page en standalone iOS. Solution : le fond de `<html>` suit en JS la couleur du bas du ciel (`v1/app.js`, boucle `frame`). À vérifier sur iPhone.

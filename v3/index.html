@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr" class="verrou">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mandala · AWE Ritual</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AWE Ritual">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5efe4">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#120d0b">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../icones/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../icones/icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&amp;family=Jost:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="style.css?v=202610120823340200">
+<!-- Contenu masqué tant que le compte admin n'est pas confirmé (commun.js → AWE.garder) -->
+<style>html.verrou body{visibility:hidden}</style>
+<script>window.DERNIERE_MAJ = '2026-10-12T08:23:34+02:00';</script>
+</head>
+<body>
+<main>
+  <header class="tete">
+    <a class="retour" href="../" aria-label="Retour au menu">‹ Menu</a>
+    <span class="petit" id="date"></span>
+    <button type="button" class="son" id="son" aria-pressed="true" aria-label="Son du bol">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4z"/><path class="ondes" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+    </button>
+  </header>
+
+  <div class="titre">
+    <span class="petit" id="ciel"></span>
+    <h1>Mandala</h1>
+  </div>
+
+  <button type="button" class="mandala" id="zone" aria-describedby="consigne">
+    <svg id="svg" viewBox="-200 -200 400 400" aria-hidden="true">
+      <defs>
+        <radialGradient id="degHalo"><stop offset="0" style="stop-color:var(--or);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--or);stop-opacity:0"/></radialGradient>
+      </defs>
+      <circle class="halo" id="halo" r="190" fill="url(#degHalo)"/>
+      <g id="anneaux"></g>
+      <circle class="bindu" id="bindu" r="7"/>
+    </svg>
+  </button>
+
+  <div class="souffle">
+    <p class="consigne" id="consigne" aria-live="polite">Pose ton doigt sur le mandala et inspire</p>
+    <div class="perles" id="perles" aria-hidden="true"></div>
+  </div>
+
+  <article class="intention" id="intention" hidden>
+    <span class="petit">Intention du jour</span>
+    <p class="phrase" id="phrase"></p>
+    <p class="detail" id="detail"></p>
+    <button type="button" class="lien" id="recommencer">Recommencer le mandala</button>
+  </article>
+
+  <p class="note">Pour l'introspection, pas une prédiction ni un avis médical.</p>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="../commun.js?v=202610120823340200"></script>
+<script>AWE.garder('../');AWE.enregistrerSW('../');AWE.verifierVersion();</script>
+<script src="../ciel.js?v=202610120823340200"></script>
+<script src="app.js?v=202610120823340200"></script>
+</body>
+</html>

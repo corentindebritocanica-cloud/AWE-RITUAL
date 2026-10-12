@@ -10,11 +10,16 @@ PWA française de rituel quotidien (spiritualité & bien-être : ciel du jour, L
 
 | Chemin | Rôle |
 | --- | --- |
-| `index.html`, `style.css`, `app.js` | Accueil : connexion e-mail / mot de passe, puis menu V1 / V2 |
+| `index.html`, `style.css`, `app.js` | Accueil : connexion e-mail / mot de passe, puis menu des prototypes V1 à V6 |
 | `commun.js` | Noyau commun : init Firebase, garde admin, service worker, vérification de version |
 | `v1/` | Prototype V1 **Constellation** (nuit, canvas, navigation par gestes) |
 | `v2/` | Prototype V2 **Aura** (fanzine riso de jour, cartes « c'est moi / pas moi ») |
-| `sw.js` | Service worker unique, portée racine (accueil + V1 + V2 = une seule app installée) |
+| `v3/` | Prototype V3 **Mandala** (7 souffles en appui long tracent 7 anneaux de géométrie sacrée, bol chantant) |
+| `v4/` | Prototype V4 **Oracle** (bougie à allumer, question, tirage d'une carte parmi 22 arcanes, journal) |
+| `v5/` | Prototype V5 **Chakras** (scan des 7 centres, centre à soigner, méditation guidée de l'alignement) |
+| `v6/` | Prototype V6 **Mala** (japa : mantra du jour, 27/54/108 perles égrenées au doigt) |
+| `ciel.js` | Ciel du jour partagé par V3 à V6 (Lune, signe, arcane, chakra, aléa par date, stockage local, son du bol en Web Audio) |
+| `sw.js` | Service worker unique, portée racine (accueil + V1 à V6 = une seule app installée) |
 | `manifest.json`, `icones/` | Manifeste PWA et icônes (dont `apple-touch-icon.png` 180×180) |
 | `firestore.rules` | Règles Firestore versionnées, **jamais déployées automatiquement** |
 | `.github/workflows/auto-version.yml` | Met à jour `DERNIERE_MAJ`, les URLs `?v=` et `CACHE_NAME` à chaque push |
@@ -27,15 +32,15 @@ HTML + CSS + JS pur, sans framework ni build.
 
 - Firebase Authentication, fournisseur **e-mail / mot de passe**, SDK compat 10.12.2 (gstatic).
 - Persistance `LOCAL` : un appareil connecté une fois le reste (pas d'expiration côté app).
-- Sur iPhone, chaque icône installée a son propre stockage : il faut se connecter une fois par icône installée, pas une fois par page. Accueil, V1 et V2 partagent la même session (même origine, même app installée).
+- Sur iPhone, chaque icône installée a son propre stockage : il faut se connecter une fois par icône installée, pas une fois par page. Accueil et prototypes V1 à V6 partagent la même session (même origine, même app installée).
 - **Rôles** : claim personnalisé `admin: true` posé sur le compte via l'API Admin (Identity Toolkit). Pas de compte utilisateur classique pour l'instant (prévu plus tard : claim absent = utilisateur).
 - Un compte sans claim admin est déconnecté avec le message « Accès réservé à l'admin pour l'instant ».
 - Pas d'inscription dans l'app : les comptes se créent dans la console Firebase.
-- La garde des pages V1/V2 (`AWE.garder`) est un confort d'interface : le dépôt est public, la vraie protection des données est `firestore.rules`.
+- La garde des pages prototypes (`AWE.garder`) est un confort d'interface : le dépôt est public, la vraie protection des données est `firestore.rules`.
 
 ## Données
 
-- **Prototypes** : V1 et V2 stockent encore tout dans `localStorage` (`wai-constellation`, `aura-birth`, `aura-answers`). Aucune collection Firestore utilisée.
+- **Prototypes** : V1 à V6 stockent encore tout dans `localStorage` (`wai-constellation`, `aura-birth`, `aura-answers`, `mandala-jour`, `oracle-tirages`, `chakras-scan`, `mala-japa`, `awe-son`). Aucune collection Firestore utilisée.
 - **Firestore** : base `(default)`, région `eur3`. Règles publiées actuellement : tout refusé. Règles du dépôt : lecture / écriture réservées au claim admin. À publier via la console après test dans le simulateur.
 
 ## PWA / iOS
@@ -46,6 +51,7 @@ Règles appliquées (référence : [GUIDE_PWA_IOS.md de PORTAIL-DUO](https://git
 - `apple-mobile-web-app-capable` **et** `mobile-web-app-capable`, `apple-touch-icon` 180×180.
 - Fond de `<html>` = fond du bas de page (zone hors page sous la barre d'accueil en standalone). V1 (écran fixe en canvas) synchronise ce fond en JS avec la couleur du bas du ciel.
 - Champs en 16 px minimum (pas de zoom iOS), pas de `user-scalable=no`, hover limité à `(hover:hover) and (pointer:fine)`, retour tactile sur `:active`.
+- Son : Web Audio (bol chantant synthétisé, aucun fichier audio), lancé seulement après un geste (exigence iOS) ; bouton son par page, réglage partagé `awe-son`. Le bouton silencieux de l'iPhone peut couper le son.
 - Service worker : réseau d'abord pour le code (repli cache après 4 s), cache d'abord pour icônes, polices et SDK Firebase.
 - Vérification de version au retour au premier plan (`visibilitychange` → relit `DERNIERE_MAJ` sur le serveur → recharge, ou bandeau si saisie en cours).
 
@@ -63,7 +69,7 @@ Règles appliquées (référence : [GUIDE_PWA_IOS.md de PORTAIL-DUO](https://git
 
 ## Feuille de route
 
-- Choisir la direction (V1, V2 ou fusion), puis migrer les données locales vers Firestore (`users/{uid}/...`).
+- Choisir la direction (un prototype ou une fusion, par ex. un rituel qui enchaîne plusieurs pratiques), puis migrer les données locales vers Firestore (`users/{uid}/...`).
 - Accès utilisateur classique en plus de l'admin.
 - Admin : à définir (contenus du jour, statistiques…).
 - Plus tard : prise de rendez-vous avec des praticiens (yoga, tissus aériens).
