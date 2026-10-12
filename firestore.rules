@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// AWE Ritual — règles Cloud Firestore
+// ⚠️ Versionné ici, PAS déployé automatiquement : à tester puis publier via la console Firebase
+//    (Firestore > Règles) ou l'API Firebase Rules.
+// Phase actuelle : seul le compte admin (claim personnalisé admin == true) lit et écrit.
+// Les prototypes V1/V2 stockent encore tout en local (localStorage) : aucune collection utilisée.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    match /{document=**} {
+      allow read, write: if estAdmin();
+    }
+  }
+}

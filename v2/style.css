@@ -1,0 +1,98 @@
+/* Layout : un fanzine de jour, en trois pages numérotées (01 cartes → 02 portrait → 03 pile), une colonne étroite, encres riso superposées sur papier froid */
+:root{
+  --paper:#eceaf1; --card:#f8f7fb; --ink:#1f2a7a; --muted:#5b6290; --line:rgba(31,42,122,.2);
+  --pink:#ff4fa3; --blue:#0a78c2; --yellow:#ffd400; --green:#00a565; --blend:multiply;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --serif:"Instrument Serif",Georgia,serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Space Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15172a;--card:#1d2038;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#15172a;--card:#1d2038;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--paper);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--body);margin:0;overflow-x:hidden;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 48px) calc(env(safe-area-inset-left,0px) + 16px)}
+main{max-width:480px;margin:0 auto;display:grid;gap:22px}
+button{font:600 .95rem var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:999px;padding:12px 20px;cursor:pointer;transition:transform 160ms cubic-bezier(.23,1,.32,1);-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2.5px solid var(--pink);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.muted{color:var(--muted)}
+
+/* En-tête : titre en double passage riso, légèrement décalé */
+header{display:grid;gap:8px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.riso{position:relative;margin:0;font:800 clamp(3rem,15vw,4.6rem)/.86 var(--display);letter-spacing:-.035em;color:var(--blue);text-wrap:balance}
+.riso::after{content:attr(data-t);position:absolute;inset:0;transform:translate(3px,2px);color:var(--pink);mix-blend-mode:var(--blend);pointer-events:none}
+.born{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--serif);font-size:1.25rem}
+.born input{font:inherit;font-family:var(--mono);font-size:16px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px dashed var(--ink);padding:2px 0;width:auto}
+.sky{font-family:var(--mono);font-size:.78rem;color:var(--muted);line-height:1.6}
+.sky b{color:var(--ink);font-weight:700}
+
+/* Navigation : trois pages d'un fanzine */
+nav{display:grid;grid-template-columns:repeat(3,1fr);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+nav button{border:0;border-radius:0;padding:10px 4px;display:grid;gap:0;justify-items:start;text-align:left;font:600 .9rem var(--body)}
+nav button+button{border-left:1.5px solid var(--line)}
+nav button span{font:700 .68rem var(--mono);color:var(--muted)}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+nav button[aria-selected="true"] span{color:var(--pink)}
+nav button:active{transform:none}
+
+section.page{display:grid;gap:18px}
+
+/* 01 · Cartes */
+.deck{position:relative;height:min(64vh,430px);touch-action:none}
+.card{position:absolute;inset:0;background:var(--card);border:1.5px solid var(--ink);border-radius:20px;padding:20px;display:grid;grid-template-rows:auto 1fr auto;gap:10px;overflow:hidden;cursor:grab;user-select:none;-webkit-user-select:none;transition:transform 300ms cubic-bezier(.23,1,.32,1),opacity 300ms ease-out;will-change:transform}
+.card:active{cursor:grabbing}
+.card .blob{position:absolute;width:62%;aspect-ratio:1;max-width:100%;border-radius:50%;right:-18%;bottom:-16%;filter:blur(8px);opacity:.85;mix-blend-mode:var(--blend);pointer-events:none}
+.card .lens{display:flex;justify-content:space-between;gap:8px;position:relative}
+.card .lens span:last-child{color:var(--muted)}
+.card p{margin:0;align-self:center;font:700 clamp(1.7rem,7.5vw,2.25rem)/1.04 var(--display);letter-spacing:-.02em;text-wrap:balance;position:relative}
+.card .why{position:relative;font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--muted)}
+.stamp{position:absolute;top:22px;font:800 1.5rem var(--display);letter-spacing:.02em;padding:4px 12px;border:3px solid currentColor;border-radius:8px;opacity:0;pointer-events:none}
+.stamp.yes{left:18px;color:var(--pink);transform:rotate(-12deg)}
+.stamp.no{right:18px;color:var(--blue);transform:rotate(10deg)}
+.actions{display:flex;gap:10px;justify-content:center}
+.actions button{flex:1;max-width:200px}
+.actions .yes{background:var(--pink);border-color:var(--pink);color:#fff}
+.progress{display:flex;gap:4px}
+.progress i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.progress i.on{background:var(--ink)}
+.done{display:grid;gap:12px;justify-items:start;padding:22px;border:1.5px dashed var(--ink);border-radius:20px}
+.done h2{margin:0;font:800 2rem/1 var(--display);letter-spacing:-.02em}
+
+/* 02 · Portrait */
+.poster{position:relative;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:var(--card)}
+.poster canvas{display:block;width:100%;aspect-ratio:1;max-width:100%}
+.poster .meta{position:absolute;inset:14px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.poster .meta .row{display:flex;justify-content:space-between}
+.poster .words{font:400 clamp(2.2rem,11vw,3.2rem)/.95 var(--serif);font-style:italic;letter-spacing:-.01em}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fact{border-top:1.5px solid var(--ink);padding-top:8px;display:grid;gap:2px;min-width:0}
+.fact b{font:700 1.15rem/1.15 var(--display)}
+.mantra{font:400 1.6rem/1.2 var(--serif);font-style:italic;margin:0;text-wrap:balance}
+.mix{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:62px 1fr 34px;gap:8px;align-items:center;font-family:var(--mono);font-size:.72rem}
+.bar .track{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar .fill{height:100%;border-radius:5px;transform-origin:left;transition:transform 500ms cubic-bezier(.23,1,.32,1)}
+.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.toastline{min-height:1.4em;font-size:.9rem;color:var(--muted)}
+
+/* 03 · Pile */
+.pile{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{display:grid;gap:4px;min-width:0}
+.tile canvas{width:100%;aspect-ratio:1;max-width:100%;border:1.5px solid var(--ink);border-radius:4px;display:block}
+.tile span{font-family:var(--mono);font-size:.66rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile em{font:italic 1rem/1 var(--serif);color:var(--ink)}
+.tag{font-family:var(--mono);font-size:.68rem;color:var(--pink);letter-spacing:.06em;text-transform:uppercase}
+footer{font-size:.78rem;color:var(--muted);border-top:1.5px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion:reduce){.card,.bar .fill{transition:opacity 200ms ease-out!important}}
+
+/* Retour au menu AWE Ritual */
+.retour{justify-self:start;color:var(--muted);text-decoration:none;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;touch-action:manipulation;-webkit-touch-callout:none;transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.retour:active{transform:scale(.97)}
+button,a{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+

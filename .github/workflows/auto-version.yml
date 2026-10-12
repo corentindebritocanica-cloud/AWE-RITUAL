@@ -1,0 +1,65 @@
+name: Auto-version (DERNIERE_MAJ + cache du Service Worker)
+
+# À chaque push sur main qui modifie le code d'une page (accueil, v1, v2) ou commun.js :
+#   - DERNIERE_MAJ et les URLs versionnées (?v=…) de TOUTES les pages (une seule app installée)
+#   - CACHE_NAME du sw.js racine (« awe-ritual-r » + numéro d'exécution)
+# Lancement manuel possible : onglet Actions > Run workflow.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'style.css'
+      - 'app.js'
+      - 'commun.js'
+      - 'sw.js'
+      - 'manifest.json'
+      - 'v1/**'
+      - 'v2/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: auto-version
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mettre à jour DERNIERE_MAJ, URLs versionnées et CACHE_NAME
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          NOW=$(TZ=Europe/Paris date +%Y-%m-%dT%H:%M:%S%:z)
+          VER=$(printf '%s' "$NOW" | tr -dc '0-9')
+          for F in index.html v1/index.html v2/index.html; do
+            sed -i -E "s/(DERNIERE_MAJ = ')[^']*(')/\1${NOW}\2/" "$F"
+            sed -i -E "s/(style\.css\?v=)[0-9]*/\1${VER}/; s/(app\.js\?v=)[0-9]*/\1${VER}/; s/(commun\.js\?v=)[0-9]*/\1${VER}/" "$F"
+            test "$(grep -c "DERNIERE_MAJ = '${NOW}'" "$F")" = "1"
+            test "$(grep -c "commun\.js?v=${VER}" "$F")" = "1"
+          done
+          sed -i -E "s/^(const CACHE_NAME = ')[^']*(';)/\1awe-ritual-r${RUN_NUMBER}\2/" sw.js
+          test "$(grep -c "^const CACHE_NAME = 'awe-ritual-r${RUN_NUMBER}';" sw.js)" = "1"
+          if git diff --quiet; then echo "Rien à mettre à jour"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: DERNIERE_MAJ + cache SW mis à jour automatiquement"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "PUSHED=1" >> "$GITHUB_ENV"
+
+      - name: Relancer la publication GitHub Pages
+        if: env.PUSHED == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Build Pages déjà en cours ou non requis"
