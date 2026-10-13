@@ -16,6 +16,13 @@ Rappel des pièges déjà connus sur PORTAIL-DUO (détail dans GUIDE_PWA_IOS.md)
 
 ---
 
+## 2026-10-13 · V7 bloquée sur l'écran de chargement (boucle infinie)
+
+- **Symptôme** : l'app reste figée au chargement, sans erreur dans la console.
+- **Cause** : `cartesDuJour()` tire 7 phrases distinctes ; chaque élément n'en a que 5. Quand la Lune et le Soleil natal sont du même élément (ex. Lune en Scorpion + Poissons, tous deux Eau), le `do…while` cherche une 6e phrase inexistante : boucle infinie.
+- **Solution** : après 12 essais, on passe à l'élément suivant (`v7/app.js`, `cartesDuJour`).
+- **À retenir** : toute boucle de tirage « sans doublon » doit avoir une sortie garantie. Tester avec des dates de naissance du même élément que la Lune du jour.
+
 ## 2026-10-13 · V7 : bordure haute foncée sur les étapes faites
 - **Symptôme** : les cartes d'étape « faites » avaient un trait haut bleu encre qui dépassait des coins arrondis.
 - **Cause** : la classe `.fait` servait à la fois aux étapes (`.etape.fait`) et aux encarts d'infos de « Mon aura » (`.fait{border-top:…}`) : la règle des encarts s'appliquait aussi aux étapes.

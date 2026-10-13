@@ -168,7 +168,12 @@
     const lentilles = [[`Lune · ${s.phase.toLowerCase()} en ${s.signe}`, s.element], [`Arcane · ${arc[0]}`, arc[4]], [`Chakra du ${ch[0]}`, ch[1]],
       [sol ? `Ton signe · ${sol[0]}` : 'Ton humeur', sol ? sol[1] : ELS[Math.floor(r() * 4)]], [`Lune en ${s.signe}`, s.element], ['Ton corps, ce matin', ELS[Math.floor(r() * 4)]], ['Ton souffle', ELS[Math.floor(r() * 4)]]];
     const out = [], vus = new Set();
-    lentilles.forEach(([lentille, el], i) => { let st; do { st = POOL[el][Math.floor(r() * 5)]; } while (vus.has(st[0]) && vus.size < 20); vus.add(st[0]); out.push({ lentille, el, t: st[0], mot: st[1], i }); });
+    // Chaque élément n'a que 5 phrases : si elles sont épuisées (ex. Lune et Soleil natal en Eau), on passe à l'élément suivant.
+    lentilles.forEach(([lentille, el], i) => {
+      let st, n = 0;
+      do { if (n >= 12) { el = ELS[(ELS.indexOf(el) + 1) % 4]; n = 0; } st = POOL[el][Math.floor(r() * POOL[el].length)]; n++; } while (vus.has(st[0]));
+      vus.add(st[0]); out.push({ lentille, el, t: st[0], mot: st[1], i });
+    });
     for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
     return out;
   }
