@@ -114,6 +114,10 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .bulle-zone{position:relative;width:220px;height:220px;display:grid;place-items:center}
 .bulle{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 50%,var(--souffle,var(--blue)) 0%,transparent 70%);opacity:.75;mix-blend-mode:var(--blend);transform:scale(.55);transition:transform 5s cubic-bezier(.45,0,.55,1)}
 .bulle.inspire{transform:scale(1)}
+.rythmes{display:flex;gap:6px;width:100%}
+.rythmes button{flex:1;min-height:44px;padding:8px 6px;font-size:.9rem;background:transparent;color:var(--ink);border:1px solid var(--ink);border-radius:999px;opacity:.6}
+.rythmes button[aria-pressed="true"]{opacity:1;background:var(--ink);color:var(--paper)}
+.rythmes button:disabled{opacity:.35}
 .bulle-texte{position:relative;font:400 1.6rem/1 var(--serif);font-style:italic}
 /* 03 · Geste : arcane */
 .arcane{display:grid;gap:14px;justify-items:center;text-align:center}

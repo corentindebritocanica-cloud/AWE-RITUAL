@@ -103,7 +103,12 @@
         </button>
         <div class="corps" id="cSouffle" hidden>
           <div class="souffle">
-            <p class="muted">Six respirations lentes : cinq secondes pour inspirer, cinq pour expirer.</p>
+            <div class="rythmes" id="rythmes" role="group" aria-label="Rythme du souffle">
+              <button type="button" data-r="apaiser" aria-pressed="false">Apaiser</button>
+              <button type="button" data-r="equilibre" aria-pressed="false">Équilibre</button>
+              <button type="button" data-r="energiser" aria-pressed="false">Énergiser</button>
+            </div>
+            <p class="muted" id="rythmeTexte"></p>
             <div class="bulle-zone">
               <div class="bulle" id="bulle"></div>
               <span class="bulle-texte" id="bulleTexte" aria-live="polite">Prêt·e&nbsp;?</span>

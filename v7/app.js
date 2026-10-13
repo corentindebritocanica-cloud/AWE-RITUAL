@@ -384,6 +384,7 @@
   const ROMAINS = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
   function rendreGeste() {
     $('bulle').style.setProperty('--souffle', `var(${ENCRE[dominant(scores())]})`);
+    initRythme();
     if (jourAuj.etapes.souffle && !souffleEnCours) { $('bulleTexte').textContent = 'Fait'; $('souffleBtn').textContent = 'Refaire une minute'; }
     const arc = ARCANES[arcaneDuJour()], vu = !!jourAuj.etapes.arcane;
     $('aNum').textContent = ROMAINS[arcaneDuJour()];
@@ -393,11 +394,32 @@
     $('suiteArcane').hidden = !(vu && !jourAuj.etapes.intention);
   }
 
+  /* Rythmes : durées d'inspiration et d'expiration (s). Toujours 6 cycles = 1 min, sans rétention. */
+  const RYTHMES = {
+    apaiser: [4, 6, 'Inspire 4 s, expire 6 s : l\'expiration plus longue aide à se calmer.'],
+    equilibre: [5, 5, 'Inspire 5 s, expire 5 s : un souffle régulier et stable.'],
+    energiser: [6, 4, 'Inspire 6 s, expire 4 s : l\'inspiration plus longue réveille en douceur.']
+  };
+  const RYTHME_ELEMENT = { Feu: 'apaiser', Air: 'apaiser', Eau: 'energiser', Terre: 'equilibre' };
+  let rythme = null, rythmeManuel = false;
+  function choisirRythme(r, manuel) {
+    rythme = r; rythmeManuel = !!manuel;
+    document.querySelectorAll('#rythmes button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.r === r)));
+    $('rythmeTexte').textContent = RYTHMES[r][2] + (manuel ? '' : ' Suggéré selon ton élément du jour.');
+  }
+  document.querySelectorAll('#rythmes button').forEach((x) => x.addEventListener('click', () => { if (!souffleEnCours) choisirRythme(x.dataset.r, true); }));
+  function initRythme() {
+    if (souffleEnCours || rythmeManuel) return;
+    choisirRythme(RYTHME_ELEMENT[dominant(scores())], false);
+  }
+
   let souffleEnCours = null;
   $('souffleBtn').addEventListener('click', () => {
     if (souffleEnCours) { arreterSouffle(false); return; }
     son.reveiller();
     let cycle = 0; const total = 6, b = $('bulle'), txt = $('bulleTexte');
+    const [dIn, dOut] = RYTHMES[rythme || 'equilibre'];
+    document.querySelectorAll('#rythmes button').forEach((x) => { x.disabled = true; });
     $('souffleBtn').textContent = 'Arrêter';
     son.bol(196, 4, .16);
     const pas = () => {
@@ -406,13 +428,15 @@
       b.classList.toggle('inspire', inspire);
       txt.textContent = (inspire ? 'Inspire' : 'Expire') + ` · ${Math.floor(cycle / 2) + 1}/${total}`;
       if (inspire) { try { navigator.vibrate && navigator.vibrate(12); } catch (e) {} }
-      cycle++; souffleEnCours = setTimeout(pas, 5000);
+      b.style.transitionDuration = (inspire ? dIn : dOut) + 's';
+      cycle++; souffleEnCours = setTimeout(pas, (inspire ? dIn : dOut) * 1000);
     };
     pas();
   });
   function arreterSouffle(fini) {
     clearTimeout(souffleEnCours); souffleEnCours = null;
     $('bulle').classList.remove('inspire');
+    document.querySelectorAll('#rythmes button').forEach((x) => { x.disabled = false; });
     $('bulleTexte').textContent = fini ? 'Merci' : 'Prêt·e ?';
     $('souffleBtn').textContent = fini ? 'Refaire une minute' : 'Commencer · 1 min';
     if (fini) valider('souffle');
