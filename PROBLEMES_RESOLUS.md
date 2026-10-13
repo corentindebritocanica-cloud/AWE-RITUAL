@@ -16,6 +16,18 @@ Rappel des pièges déjà connus sur PORTAIL-DUO (détail dans GUIDE_PWA_IOS.md)
 
 ---
 
+## 2026-10-13 · V7 : bordure haute foncée sur les étapes faites
+- **Symptôme** : les cartes d'étape « faites » avaient un trait haut bleu encre qui dépassait des coins arrondis.
+- **Cause** : la classe `.fait` servait à la fois aux étapes (`.etape.fait`) et aux encarts d'infos de « Mon aura » (`.fait{border-top:…}`) : la règle des encarts s'appliquait aussi aux étapes.
+- **Solution** : encarts renommés `.info` (`v7/index.html`, `v7/style.css`).
+- **À retenir** : un nom de classe d'état (`fait`, `actif`, `ouvert`) ne doit jamais porter de style seul ; toujours le combiner à son composant.
+
+## 2026-10-13 · Tests Playwright : bouchon Firebase ignoré
+- **Symptôme** : la page de test restait sur l'écran de connexion.
+- **Cause** : le motif `**/gstatic.com/**` ne correspond pas à `www.gstatic.com`.
+- **Solution** : intercepter `**/firebasejs/**`.
+- **À retenir** : viser un segment de chemin propre au script plutôt qu'un domaine partiel.
+
 ## 2026-10-12 · Tests Playwright : le service worker contourne les bouchons Firebase
 - **Symptôme** : en test local, après avoir ouvert l'accueil, V3 renvoyait vers l'accueil (garde admin refusée).
 - **Cause** : le service worker enregistré sur l'accueil récupère lui-même le SDK Firebase sur gstatic ; les `route()` Playwright qui remplacent le SDK par un faux compte admin ne s'appliquent plus.

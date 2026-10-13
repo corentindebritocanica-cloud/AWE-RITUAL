@@ -44,10 +44,11 @@
     <p class="evenement" id="evenement" hidden></p>
 
     <div class="progression" aria-live="polite">
-      <div class="segments" id="segments" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="segments" id="segments" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
       <span class="mono muted" id="progTexte"></span>
     </div>
 
+    <button type="button" class="lien" id="revoirEtapes" hidden>Revoir mes étapes</button>
     <ol class="etapes" id="etapes">
       <!-- 1 · Ciel -->
       <li class="etape" data-e="ciel">
@@ -64,7 +65,11 @@
               <p class="phrase" id="phrase"></p>
             </div>
           </div>
-          <label class="naissance" id="naissanceBloc" for="naissance">Pour personnaliser ton aura, ta date de naissance
+          <div class="nombre" id="nombreJour" hidden>
+            <span class="chiffre" id="nChiffre"></span>
+            <div><span class="mono muted">Ton jour personnel</span><b id="nSens"></b><p id="nConseil"></p></div>
+          </div>
+          <label class="naissance" id="naissanceBloc" for="naissance">Pour personnaliser ton aura et ton nombre du jour, ta date de naissance
             <input id="naissance" type="date" max="2026-12-31">
           </label>
           <button type="button" class="principal" id="okCiel">Je reçois le ciel du jour</button>
@@ -89,25 +94,35 @@
         </div>
       </li>
 
-      <!-- 3 · Geste -->
-      <li class="etape" data-e="geste">
-        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cGeste">
+      <!-- 3 · Souffle -->
+      <li class="etape" data-e="souffle">
+        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cSouffle">
           <span class="num mono">03</span>
-          <span class="titres"><b>Geste</b><span class="sous" id="sGeste">Une minute pour toi</span></span>
+          <span class="titres"><b>Souffle</b><span class="sous">Une minute de cohérence</span></span>
           <span class="etat mono"></span>
         </button>
-        <div class="corps" id="cGeste" hidden>
-          <!-- Souffle -->
-          <div class="souffle" id="souffle">
-            <p class="muted" id="souffleIntro">Six respirations lentes, cinq secondes pour inspirer, cinq pour expirer.</p>
+        <div class="corps" id="cSouffle" hidden>
+          <div class="souffle">
+            <p class="muted">Six respirations lentes : cinq secondes pour inspirer, cinq pour expirer.</p>
             <div class="bulle-zone">
               <div class="bulle" id="bulle"></div>
               <span class="bulle-texte" id="bulleTexte" aria-live="polite">Prêt·e&nbsp;?</span>
             </div>
             <button type="button" class="principal" id="souffleBtn">Commencer · 1 min</button>
           </div>
-          <!-- Arcane -->
-          <div class="arcane" id="arcane" hidden>
+          <p class="note"><b>Respire sans forcer.</b> Si tu es enceinte, asthmatique, sujet·te aux vertiges ou à des troubles cardiaques, garde un souffle naturel et arrête dès que tu te sens mal.</p>
+        </div>
+      </li>
+
+      <!-- 4 · Arcane -->
+      <li class="etape" data-e="arcane">
+        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cArcane">
+          <span class="num mono">04</span>
+          <span class="titres"><b>Arcane</b><span class="sous" id="sArcane">Une carte pour éclairer ta journée</span></span>
+          <span class="etat mono"></span>
+        </button>
+        <div class="corps" id="cArcane" hidden>
+          <div class="arcane">
             <button type="button" class="carte-tarot" id="carteTarot" aria-label="Retourner l'arcane du jour">
               <span class="dos" aria-hidden="true"></span>
               <span class="face">
@@ -122,15 +137,14 @@
             </div>
             <p class="muted aide" id="arcaneAide">Touche la carte pour la retourner.</p>
           </div>
-          <button type="button" class="lien" id="changerGeste"></button>
-          <button type="button" class="principal" id="suiteGeste" hidden>Continuer vers l'intention</button>
+          <button type="button" class="principal" id="suiteArcane" hidden>Continuer vers l'intention</button>
         </div>
       </li>
 
-      <!-- 4 · Intention -->
+      <!-- 5 · Intention -->
       <li class="etape" data-e="intention">
         <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cIntention">
-          <span class="num mono">04</span>
+          <span class="num mono">05</span>
           <span class="titres"><b>Intention</b><span class="sous">Une ligne pour ta journée</span></span>
           <span class="etat mono"></span>
         </button>
@@ -142,7 +156,14 @@
       </li>
     </ol>
 
-    <!-- Révélation : apparaît quand les 4 étapes sont faites -->
+    <!-- Message de soutien : affiché si une intention laisse paraître une détresse -->
+    <div class="soutien" id="soutien" role="alert" hidden>
+      <b>Tu n'as pas à traverser ça seul·e.</b>
+      <p>Si tu penses à te faire du mal ou si tout te semble trop lourd, parles-en maintenant à quelqu'un : le <a href="tel:3114">3114</a> répond 24 h/24, gratuitement et en toute confidentialité. En cas de danger immédiat, appelle le <a href="tel:15">15</a> ou le <a href="tel:112">112</a>.</p>
+      <button type="button" class="lien" id="soutienFermer">Fermer</button>
+    </div>
+
+    <!-- Révélation : apparaît quand les 5 étapes sont faites -->
     <div class="revelation" id="revelation" hidden>
       <span class="mono muted">Ton aura du jour est révélée</span>
       <div class="poster">
@@ -152,13 +173,22 @@
           <div><span class="mono">Aujourd'hui tu es</span><div class="mots" id="rMots"></div></div>
         </div>
       </div>
+      <span class="mono muted">Ton affirmation du jour</span>
       <p class="mantra" id="rMantra"></p>
+      <p class="mono muted" id="rNombre" hidden></p>
       <p class="rintention" id="rIntention"></p>
       <div class="boutons">
         <button type="button" class="principal" id="partager">Partager mon aura</button>
         <button type="button" id="versAura">Voir mon évolution</button>
       </div>
       <span class="toastline" id="toast" aria-live="polite"></span>
+    </div>
+
+    <!-- La Lune au quotidien : tradition populaire française (jardin, cheveux, maison) -->
+    <div class="quotidien" role="region" aria-labelledby="qTitre">
+      <div class="bloc-tete"><b id="qTitre">La Lune au quotidien</b><span class="mono muted" id="qJour"></span></div>
+      <dl id="quotidien"></dl>
+      <p class="muted petit-texte">Tradition populaire, sans preuve scientifique : à prendre comme un repère, pas comme une règle.</p>
     </div>
   </section>
 
@@ -182,6 +212,8 @@
       <div class="info"><span class="mono muted">Posture</span><b id="fYoga"></b></div>
       <div class="info"><span class="mono muted">Lune</span><b id="fLune"></b></div>
       <div class="info"><span class="mono muted">Soleil natal</span><b id="fSoleil"></b></div>
+      <div class="info"><span class="mono muted">Chemin de vie</span><b id="fChemin"></b></div>
+      <div class="info"><span class="mono muted">Année personnelle</span><b id="fAnnee"></b></div>
     </div>
 
     <div class="bloc">
@@ -193,6 +225,27 @@
       <div class="bloc-tete"><b>Ma lunaison</b><span class="mono muted" id="lunaisonTexte"></span></div>
       <div class="lunaison" id="lunaison"></div>
       <p class="muted petit-texte" id="lunaisonAide"></p>
+
+      <!-- Rituel de cycle : intention à la nouvelle lune, bilan à la pleine lune -->
+      <div class="cycle" id="cycleIntention">
+        <span class="mono muted">Intention du cycle</span>
+        <p class="cycle-texte" id="cycleTexte" hidden></p>
+        <div id="cycleForm">
+          <p class="muted petit-texte">Ce que tu veux faire grandir d'ici la prochaine nouvelle lune. Idéalement posée dans les premiers jours du cycle.</p>
+          <textarea id="cycleChamp" rows="2" maxlength="160" enterkeyhint="done" aria-label="Intention du cycle"></textarea>
+          <button type="button" class="principal" id="cycleOk">Poser l'intention du cycle</button>
+        </div>
+      </div>
+      <div class="cycle" id="cycleBilan">
+        <span class="mono muted">Bilan de pleine lune</span>
+        <p class="petit-texte" id="bilanStats"></p>
+        <p class="cycle-texte" id="bilanTexte" hidden></p>
+        <div id="bilanForm">
+          <textarea id="bilanChamp" rows="3" maxlength="400" aria-label="Bilan de pleine lune" placeholder="Ce qui a bougé, ce que je garde, ce que je laisse…"></textarea>
+          <button type="button" class="principal" id="bilanOk">Enregistrer mon bilan</button>
+        </div>
+      </div>
+      <p class="muted petit-texte" id="bilanAttente" hidden></p>
     </div>
 
     <label class="naissance discret" for="naissance2">Date de naissance
@@ -207,7 +260,9 @@
       <h2 class="riso" data-t="Mes intentions">Mes intentions</h2>
     </div>
     <ol class="journal" id="journal"></ol>
+    <div class="journal-cycles" id="journalCycles"></div>
     <p class="vide muted" id="journalVide" hidden>Ton journal se remplira jour après jour. Termine ton premier rituel pour y voir ta première aura.</p>
+    <p class="note">Besoin de parler à quelqu'un ? Le <a href="tel:3114">3114</a> écoute 24 h/24, gratuitement. En cas d'urgence : <a href="tel:15">15</a> ou <a href="tel:112">112</a>.</p>
   </section>
 
   <footer>Who am I? · pour l'introspection et le plaisir, pas une prédiction ni un avis médical. Tes réponses restent sur cet appareil.</footer>

@@ -1,6 +1,7 @@
-/* V7 · Rituel Aura — quatre étapes (ciel → ressenti → geste → intention) colorent l'aura du jour.
+/* V7 · Rituel Aura — cinq étapes (ciel → ressenti → souffle → arcane → intention) colorent l'aura du jour.
+   En plus : nombre du jour (numérologie), « Lune au quotidien », intention et bilan de lunaison, garde-fous.
    Astronomie : astronomy-engine (MIT) si chargé, sinon modèle simplifié de V2 (hors ligne au 1er lancement).
-   Données locales : « aura7 » = { naissance, jours: { 'AAAA-MM-JJ': {...} } }. */
+   Données locales : « aura7 » = { naissance, jours: { 'AAAA-MM-JJ': {...} }, cycles: { 'AAAA-MM-JJ (nouvelle lune)': { intention, bilan } } }. */
 (function () {
   'use strict';
   const { hash, rng, store, son, reduit } = window.CIEL;
@@ -63,7 +64,44 @@
     Air: 'La Lune en {s} fait circuler les idées : parle, écris, échange.',
     Eau: "La Lune en {s} rend sensible : écoute ce que tu ressens avant d'agir."
   };
-  const ETAPES = ['ciel', 'ressenti', 'geste', 'intention'];
+  const ETAPES = ['ciel', 'ressenti', 'souffle', 'arcane', 'intention'];
+  const NB = ETAPES.length;
+
+  /* Affirmation du jour : élément dominant × moment de la lunaison (16 phrases). */
+  const AFFIRMATIONS = {
+    Feu: { nouvelle: "J'ose lancer ce qui m'appelle, même tout petit.", croissante: 'Chaque pas que je fais nourrit mon élan.', pleine: "Je rayonne sans m'excuser d'exister.", 'décroissante': 'Je garde mon feu pour ce qui compte vraiment.' },
+    Eau: { nouvelle: "J'écoute ce qui naît en moi, sans le juger.", croissante: 'Je laisse mes émotions me guider avec douceur.', pleine: "J'accueille pleinement tout ce que je ressens.", 'décroissante': 'Je laisse partir ce qui ne me nourrit plus.' },
+    Air: { nouvelle: "J'ouvre mon esprit à une idée neuve.", croissante: 'Mes mots construisent ce que je veux voir grandir.', pleine: 'Je vois clair et je le dis avec justesse.', 'décroissante': 'Je fais de la place dans mes pensées.' },
+    Terre: { nouvelle: 'Je plante une graine simple et concrète.', croissante: 'Je construis pas à pas, à mon rythme.', pleine: "Je savoure ce que j'ai déjà construit.", 'décroissante': "Je range, je trie, je m'allège." }
+  };
+  const affirmation = (dom) => AFFIRMATIONS[dom][CIEL_AUJ.groupe];
+
+  /* Numérologie (tradition pythagoricienne) : chemin de vie, année, jour personnel. */
+  const NOMBRES = {
+    1: ['le commencement', 'Lance une chose nouvelle, même minuscule.'],
+    2: ['la coopération', 'Écoute avant de décider, avance à deux.'],
+    3: ["l'expression", 'Dis, écris, crée : laisse sortir ce qui est en toi.'],
+    4: ['la construction', 'Avance sur une tâche concrète, une seule.'],
+    5: ['le mouvement', 'Change une habitude, sors de ta routine.'],
+    6: ['le soin', 'Prends soin de quelqu\'un, et de toi.'],
+    7: ["l'introspection", 'Garde un moment de silence pour toi.'],
+    8: ["l'action", 'Prends la décision que tu repousses.'],
+    9: ["l'achèvement", 'Termine, trie, remercie ce qui s\'achève.'],
+    11: ["l'inspiration", "Fais confiance à ce que tu pressens."],
+    22: ['la grande construction', 'Vois grand, mais pose une pierre aujourd\'hui.'],
+    33: ['le don de soi', 'Donne sans t\'oublier.']
+  };
+  const chiffres = (n) => String(n).split('').reduce((a, c) => a + (+c || 0), 0);
+  function reduire(n, maitres) { while (n > 9 && !(maitres && [11, 22, 33].includes(n))) n = chiffres(n); return n; }
+
+  /* La Lune au quotidien (tradition française) : type de jour au jardin selon le signe, cheveux et maison selon la phase. */
+  const JARDIN = { Feu: ['fruit', 'tomates, courgettes, haricots, arbres fruitiers'], Terre: ['racine', 'carottes, radis, ail, oignons, bulbes'], Air: ['fleur', 'fleurs, bouquets, artichauts, brocolis'], Eau: ['feuille', 'salades, épinards, aromatiques ; arrosage et tonte'] };
+  const CHEVEUX = { nouvelle: 'Pause : soin du cuir chevelu plutôt que coupe.', croissante: "Coupe pour qu'ils repoussent plus vite et plus forts.", pleine: "Masque ou soin nourrissant : la tradition dit qu'il agit mieux.", 'décroissante': 'Coupe pour garder ta coupe plus longtemps ; épilation plus durable.' };
+  const MAISON = { nouvelle: 'Pose tes projets, prépare la liste.', croissante: 'Commence, plante, lance un chantier.', pleine: 'Partage un repas, invite, célèbre.', 'décroissante': 'Range, trie, désherbe, fais le grand ménage.' };
+
+  /* Garde-fou : mots qui laissent paraître une détresse → message de soutien (3114), jamais de blocage. */
+  const DETRESSE = /suicid|me tuer|m'?en finir|en finir avec|envie de mourir|veux mourir|plus envie de vivre|plus la force|dispara[iî]tre|me faire du mal|scarif|automutil|me couper|me pendre/i;
+  function verifierDetresse(t) { if (DETRESSE.test(t || '')) { $('soutien').hidden = false; $('soutien').scrollIntoView({ behavior: 'auto', block: 'center' }); } }
 
   /* ---------- Astronomie ---------- */
   const J2000 = Date.UTC(2000, 0, 1, 12), jours = (d) => (d.getTime() - J2000) / 864e5;
@@ -105,6 +143,10 @@
   /* ---------- Stockage ---------- */
   const donnees = store.get('aura7', null) || { naissance: store.get('aura-birth', ''), jours: {} };
   if (!donnees.jours) donnees.jours = {};
+  if (!donnees.cycles) donnees.cycles = {};
+  Object.values(donnees.jours).forEach((j) => {
+    if (j.etapes && j.etapes.geste) { j.etapes[j.geste === 'arcane' ? 'arcane' : 'souffle'] = true; delete j.etapes.geste; }
+  });
   const jourAuj = donnees.jours[AUJ] || (donnees.jours[AUJ] = { etapes: {}, reponses: [], intention: '' });
   const sauver = () => store.set('aura7', donnees);
 
@@ -112,6 +154,15 @@
   function soleilNatal() { if (!donnees.naissance) return null; return signeDe(lonSoleil(new Date(donnees.naissance + 'T12:00:00Z'))); }
   const graine = () => hash(AUJ + (donnees.naissance || ''));
   const arcaneDuJour = () => graine() % 22;
+  function numerologie() {
+    if (!donnees.naissance) return null;
+    const [ay, am, aj] = donnees.naissance.split('-').map(Number);
+    const chemin = reduire(chiffres(ay) + chiffres(am) + chiffres(aj), true);
+    const annee = reduire(chiffres(aj) + chiffres(am) + chiffres(MAINTENANT.getFullYear()));
+    const mois = reduire(annee + chiffres(MAINTENANT.getMonth() + 1));
+    const jour = reduire(mois + chiffres(MAINTENANT.getDate()));
+    return { chemin, annee, jour };
+  }
   function cartesDuJour() {
     const s = CIEL_AUJ, sol = soleilNatal(), g = graine(), r = rng(g), ch = CHAKRA[(g >>> 5) % 7], arc = ARCANES[g % 22];
     const lentilles = [[`Lune · ${s.phase.toLowerCase()} en ${s.signe}`, s.element], [`Arcane · ${arc[0]}`, arc[4]], [`Chakra du ${ch[0]}`, ch[1]],
@@ -128,7 +179,7 @@
     if (sol) sc[sol[1]] += 1;
     sc[CIEL_AUJ.element] += .6;
     rep.forEach((a) => { const c = cartes.find((x) => x.i === a.i); if (c) sc[c.el] += a.moi ? 1.4 : -.35; });
-    if (jourAuj.etapes.geste && jourAuj.geste === 'arcane') sc[ARCANES[arcaneDuJour()][4]] += .5;
+    if (jourAuj.etapes.arcane) sc[ARCANES[arcaneDuJour()][4]] += .5;
     ELS.forEach((e) => { sc[e] = Math.max(.15, sc[e]); });
     return sc;
   }
@@ -142,7 +193,7 @@
   /* Instantané gardé pour la frise et le journal : les jours passés ne se recalculent pas. */
   function instantane() {
     const sc = scores();
-    Object.assign(jourAuj, { sc, mots: mots(sc), dominant: dominant(sc), phase: CIEL_AUJ.phase, signe: CIEL_AUJ.signe, illum: +CIEL_AUJ.illum.toFixed(3) });
+    Object.assign(jourAuj, { sc, mots: mots(sc), dominant: dominant(sc), phase: CIEL_AUJ.phase, signe: CIEL_AUJ.signe, illum: +CIEL_AUJ.illum.toFixed(3), affirmation: affirmation(dominant(sc)), nombre: (numerologie() || {}).jour || null });
     sauver();
   }
 
@@ -180,7 +231,7 @@
   }
 
   /* ---------- Étapes ---------- */
-  let ouverte = null;
+  let ouverte = null, etapesDepliees = false;
   const nbFaites = () => ETAPES.filter((e) => jourAuj.etapes[e]).length;
   const courante = () => ETAPES.find((e) => !jourAuj.etapes[e]) || null;
   function etatDe(e) { if (jourAuj.etapes[e]) return 'fait'; return e === courante() ? 'courant' : 'verrou'; }
@@ -199,11 +250,15 @@
     });
     const n = nbFaites();
     document.querySelectorAll('#segments i').forEach((i, k) => i.classList.toggle('on', k < n));
-    $('progTexte').textContent = n === 4 ? 'Rituel accompli' : `Rituel · ${n}/4`;
-    $('revelation').hidden = n < 4;
-    if (n === 4) rendreRevelation();
+    $('progTexte').textContent = n === NB ? 'Rituel accompli' : `Rituel · ${n}/${NB}`;
+    $('revelation').hidden = n < NB;
+    if (n === NB) rendreRevelation();
+    // Rituel fini : les étapes se replient pour laisser la place à l'aura révélée.
+    const replie = n === NB && !etapesDepliees;
+    $('etapes').hidden = replie; $('revoirEtapes').hidden = n < NB;
+    $('revoirEtapes').textContent = replie ? 'Revoir mes étapes' : 'Replier mes étapes';
     if (cible === 'ressenti') disposerDeck();
-    if (cible === 'geste') rendreGeste();
+    if (cible === 'souffle' || cible === 'arcane') rendreGeste();
     if (cible === 'intention') $('intention').value = jourAuj.intention || '';
   }
   /* garder = l'étape reste ouverte (ex. l'arcane retourné, pour lire son message avant de continuer). */
@@ -215,7 +270,7 @@
     son.bol(e === 'intention' ? 261.6 : 196, e === 'intention' ? 6 : 3.5, e === 'intention' ? .24 : .14);
     rendreEtapes(); rendreVive();
     if (garder) return;
-    if (nbFaites() === 4) setTimeout(() => $('revelation').scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' }), 120);
+    if (nbFaites() === NB) setTimeout(() => $('revelation').scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' }), 120);
     else { const li = document.querySelector(`.etape[data-e="${courante()}"]`); if (li) setTimeout(() => li.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'nearest' }), 80); }
   }
   document.querySelectorAll('.etape-tete').forEach((b) => b.addEventListener('click', () => {
@@ -237,23 +292,31 @@
     $('naissanceBloc').hidden = !!donnees.naissance;
     $('okCiel').disabled = !donnees.naissance;
     $('naissance2').value = donnees.naissance || '';
+    const nu = numerologie();
+    $('nombreJour').hidden = !nu;
+    if (nu) { $('nChiffre').textContent = nu.jour; $('nSens').textContent = NOMBRES[nu.jour][0]; $('nConseil').textContent = NOMBRES[nu.jour][1]; }
+    const jd = JARDIN[s.element];
+    $('qJour').textContent = `Lune ${s.groupe} en ${s.signe}`;
+    $('quotidien').innerHTML = `<div><dt>Jardin</dt><dd>Jour <b>${jd[0]}</b> : ${jd[1]}.</dd></div><div><dt>Cheveux</dt><dd>${CHEVEUX[s.groupe]}</dd></div><div><dt>Maison</dt><dd>${MAISON[s.groupe]}</dd></div>`;
     // Rendez-vous lunaires : l'app change de ton autour de la pleine et de la nouvelle lune.
     const ev = $('evenement');
-    if (s.groupe === 'pleine') { ev.hidden = false; ev.innerHTML = '<b>Pleine lune</b> · le moment de faire le bilan de ta lunaison dans « Mon aura ».'; }
-    else if (s.groupe === 'nouvelle') { ev.hidden = false; ev.innerHTML = '<b>Nouvelle lune</b> · un nouveau cycle commence : pose une intention qui tiendra un mois.'; }
+    const cy = cycleCourant();
+    if (s.groupe === 'pleine' && !cy.donnee.bilan) { ev.hidden = false; ev.innerHTML = '<b>Pleine lune</b> · le moment de faire le bilan de ta lunaison. <button type="button" class="lien" data-aller="cycleBilan">Faire mon bilan</button>'; }
+    else if (!cy.donnee.intention && cy.jour <= 4) { ev.hidden = false; ev.innerHTML = (s.groupe === 'nouvelle' ? '<b>Nouvelle lune</b>' : `<b>Jour ${cy.jour} du cycle</b>`) + ' · le cycle vient de commencer : pose une intention qui tiendra un mois. <button type="button" class="lien" data-aller="cycleIntention">Poser mon intention de cycle</button>'; }
     else ev.hidden = true;
   }
   function changerNaissance(v) {
     if (!v || v === donnees.naissance) return;
     donnees.naissance = v; store.set('aura-birth', v);
     // Les cartes dépendent de la date de naissance : on rejoue le ressenti du jour.
-    jourAuj.reponses = []; delete jourAuj.etapes.ressenti; delete jourAuj.etapes.geste;
+    jourAuj.reponses = []; delete jourAuj.etapes.ressenti; delete jourAuj.etapes.arcane;
     cartes = cartesDuJour(); viderDeck();
     instantane(); rendreCiel(); rendreEtapes(); rendreVive();
   }
   $('naissance').addEventListener('change', (e) => changerNaissance(e.target.value));
   $('naissance2').addEventListener('change', (e) => { changerNaissance(e.target.value); rendreAura(); });
   $('okCiel').addEventListener('click', () => valider('ciel'));
+  $('revoirEtapes').addEventListener('click', () => { etapesDepliees = !etapesDepliees; ouverte = ''; rendreEtapes(); });
 
   /* ---------- 02 · Ressenti (deck de V2) ---------- */
   const deck = $('deck'); let noeuds = new Map(), glisse = null;
@@ -317,30 +380,23 @@
   $('ouiBtn').addEventListener('click', () => repondre(true));
   $('nonBtn').addEventListener('click', () => repondre(false));
 
-  /* ---------- 03 · Geste : souffle ou arcane, choisi par l'élément dominant ---------- */
-  const modeGeste = () => jourAuj.geste || (['Eau', 'Air'].includes(dominant(scores())) ? 'souffle' : 'arcane');
+  /* ---------- 03 · Souffle et 04 · Arcane ---------- */
+  const ROMAINS = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
   function rendreGeste() {
-    const m = modeGeste(), dom = dominant(scores());
-    $('souffle').hidden = m !== 'souffle'; $('arcane').hidden = m !== 'arcane';
-    $('sGeste').textContent = m === 'souffle' ? 'Une minute de souffle' : "L'arcane du jour";
-    $('changerGeste').textContent = m === 'souffle' ? 'Plutôt tirer un arcane' : 'Plutôt une minute de souffle';
-    $('changerGeste').hidden = !!jourAuj.etapes.geste;
-    $('suiteGeste').hidden = !(jourAuj.etapes.geste && m === 'arcane' && !jourAuj.etapes.intention);
-    $('bulle').style.setProperty('--souffle', `var(${ENCRE[dom]})`);
-    const arc = ARCANES[arcaneDuJour()];
-    $('aNum').textContent = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'][arcaneDuJour()];
+    $('bulle').style.setProperty('--souffle', `var(${ENCRE[dominant(scores())]})`);
+    if (jourAuj.etapes.souffle && !souffleEnCours) { $('bulleTexte').textContent = 'Fait'; $('souffleBtn').textContent = 'Refaire une minute'; }
+    const arc = ARCANES[arcaneDuJour()], vu = !!jourAuj.etapes.arcane;
+    $('aNum').textContent = ROMAINS[arcaneDuJour()];
     $('aNom').textContent = arc[0]; $('aMot').textContent = arc[1]; $('aMessage').textContent = arc[2]; $('aGeste').textContent = arc[3];
-    const vu = jourAuj.etapes.geste && jourAuj.geste === 'arcane';
+    $('sArcane').textContent = vu ? `${arc[0]} · ${arc[1]}` : 'Une carte pour éclairer ta journée';
     $('carteTarot').classList.toggle('retournee', vu); $('arcaneTexte').hidden = !vu; $('arcaneAide').hidden = vu;
-    if (jourAuj.etapes.geste && jourAuj.geste === 'souffle') { $('bulleTexte').textContent = 'Fait'; $('souffleBtn').textContent = 'Refaire une minute'; }
+    $('suiteArcane').hidden = !(vu && !jourAuj.etapes.intention);
   }
-  $('changerGeste').addEventListener('click', () => { if (souffleEnCours) return; jourAuj.geste = modeGeste() === 'souffle' ? 'arcane' : 'souffle'; sauver(); rendreGeste(); });
 
   let souffleEnCours = null;
   $('souffleBtn').addEventListener('click', () => {
     if (souffleEnCours) { arreterSouffle(false); return; }
-    jourAuj.geste = 'souffle'; sauver(); son.reveiller();
-    $('changerGeste').hidden = true;
+    son.reveiller();
     let cycle = 0; const total = 6, b = $('bulle'), txt = $('bulleTexte');
     $('souffleBtn').textContent = 'Arrêter';
     son.bol(196, 4, .16);
@@ -359,25 +415,25 @@
     $('bulle').classList.remove('inspire');
     $('bulleTexte').textContent = fini ? 'Merci' : 'Prêt·e ?';
     $('souffleBtn').textContent = fini ? 'Refaire une minute' : 'Commencer · 1 min';
-    if (fini) valider('geste'); else $('changerGeste').hidden = !!jourAuj.etapes.geste;
+    if (fini) valider('souffle');
   }
   $('carteTarot').addEventListener('click', () => {
     if ($('carteTarot').classList.contains('retournee')) return;
-    jourAuj.geste = 'arcane'; sauver();
     $('carteTarot').classList.add('retournee'); son.bol(220, 5, .18);
-    setTimeout(() => { $('arcaneTexte').hidden = false; $('arcaneAide').hidden = true; valider('geste', true); }, reduit ? 0 : 650);
+    setTimeout(() => { $('arcaneTexte').hidden = false; $('arcaneAide').hidden = true; valider('arcane', true); }, reduit ? 0 : 650);
   });
-  $('suiteGeste').addEventListener('click', () => {
+  $('suiteArcane').addEventListener('click', () => {
     ouverte = null; rendreEtapes();
     const li = document.querySelector('.etape[data-e="intention"]'); if (li) li.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'nearest' });
   });
 
-  /* ---------- 04 · Intention ---------- */
+  /* ---------- 05 · Intention ---------- */
   $('intention').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('okIntention').click(); } });
   $('okIntention').addEventListener('click', () => {
     const t = $('intention').value.trim();
-    if (!t) { $('intention').placeholder = POUR[dominant(scores())].mantra.replace(/\.$/, '') + '…'; $('intention').focus(); return; }
+    if (!t) { $('intention').placeholder = affirmation(dominant(scores())).replace(/\.$/, '') + '…'; $('intention').focus(); return; }
     jourAuj.intention = t; sauver(); $('intention').blur();
+    verifierDetresse(t);
     if (jourAuj.etapes.intention) { ouverte = ''; rendreEtapes(); rendreRevelation(); } else valider('intention');
   });
 
@@ -388,26 +444,33 @@
     dessinerAura($('auraFinale'), sc, graine());
     $('rDate').textContent = MAINTENANT.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
     $('rMots').innerHTML = mots(sc).map(echapper).join('<br>');
-    $('rMantra').textContent = `« ${POUR[dom].mantra} »`;
+    const nu = numerologie();
+    $('rMantra').textContent = `« ${affirmation(dom)} »`;
+    $('rNombre').hidden = !nu; if (nu) $('rNombre').textContent = `Jour personnel ${nu.jour} · ${NOMBRES[nu.jour][0]}`;
     $('rIntention').textContent = jourAuj.intention ? 'Mon intention · ' + jourAuj.intention : '';
     $('rIntention').hidden = !jourAuj.intention;
   }
   $('versAura').addEventListener('click', () => onglet('vAura'));
+  $('soutienFermer').addEventListener('click', () => { $('soutien').hidden = true; });
 
-  /* Partage : image 1080×1350 (aura + mots + mantra) via la feuille de partage iOS, sinon texte copié. */
+  /* Partage : image 1080×1920 au format story (aura + mots + affirmation) via la feuille de partage iOS, sinon texte copié. */
   $('partager').addEventListener('click', async () => {
     const sc = scores(), dom = dominant(sc), m = mots(sc);
-    const texte = `Who am I? · ${MAINTENANT.toLocaleDateString('fr-FR')}\nAujourd'hui je suis : ${m.join(', ')}.\n${POUR[dom].mantra}`;
+    const af = affirmation(dom), texte = `Who am I? · ${MAINTENANT.toLocaleDateString('fr-FR')}\nAujourd'hui je suis : ${m.join(', ')}.\n${af}`;
     try {
-      const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1350;
+      const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920;
       const ctx = cv.getContext('2d'), aura = document.createElement('canvas'); aura.width = aura.height = 900;
       dessinerAura(aura, sc, graine());
-      ctx.fillStyle = css('--paper'); ctx.fillRect(0, 0, 1080, 1350);
-      ctx.drawImage(aura, 90, 90); ctx.strokeStyle = css('--ink'); ctx.lineWidth = 3; ctx.strokeRect(90, 90, 900, 900);
-      ctx.fillStyle = css('--ink'); ctx.font = '700 28px "Space Mono", monospace';
-      ctx.fillText('WHO AM I?', 90, 1060); ctx.textAlign = 'right'; ctx.fillText(MAINTENANT.toLocaleDateString('fr-FR'), 990, 1060);
-      ctx.textAlign = 'left'; ctx.font = 'italic 76px "Instrument Serif", Georgia, serif'; ctx.fillText(m.join(' · '), 90, 1160, 900);
-      ctx.font = 'italic 44px "Instrument Serif", Georgia, serif'; ctx.fillStyle = css('--muted'); ctx.fillText(POUR[dom].mantra, 90, 1240, 900);
+      ctx.fillStyle = css('--paper'); ctx.fillRect(0, 0, 1080, 1920);
+      ctx.fillStyle = css('--ink'); ctx.font = '700 30px "Space Mono", monospace';
+      ctx.fillText('WHO AM I?', 90, 250); ctx.textAlign = 'right'; ctx.fillText(MAINTENANT.toLocaleDateString('fr-FR'), 990, 250);
+      ctx.drawImage(aura, 90, 300); ctx.strokeStyle = css('--ink'); ctx.lineWidth = 3; ctx.strokeRect(90, 300, 900, 900);
+      ctx.textAlign = 'left'; ctx.font = 'italic 84px "Instrument Serif", Georgia, serif'; ctx.fillText(m.join(' · '), 90, 1340, 900);
+      ctx.font = 'italic 50px "Instrument Serif", Georgia, serif'; ctx.fillStyle = css('--muted');
+      const lignes = [], motsAf = af.split(' '); let l = '';
+      motsAf.forEach((w) => { const t = l ? l + ' ' + w : w; if (ctx.measureText(t).width > 900) { lignes.push(l); l = w; } else l = t; }); lignes.push(l);
+      lignes.forEach((t, i) => ctx.fillText(t, 90, 1440 + i * 64));
+      ctx.font = '700 26px "Space Mono", monospace'; ctx.fillText(`LUNE ${CIEL_AUJ.phase.toUpperCase()} EN ${CIEL_AUJ.signe.toUpperCase()}`, 90, 1760);
       const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
       const fichier = new File([blob], `aura-${AUJ}.png`, { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [fichier] })) { await navigator.share({ files: [fichier], text: texte }); return; }
@@ -420,13 +483,16 @@
     const sc = scores(), dom = dominant(sc), tot = ELS.reduce((a, e) => a + sc[e], 0), sol = soleilNatal();
     dessinerAura($('auraJour'), sc, graine());
     $('aDate').textContent = MAINTENANT.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-    $('aEtat').textContent = nbFaites() === 4 ? 'Révélée' : `En cours · ${nbFaites()}/4`;
+    $('aEtat').textContent = nbFaites() === NB ? 'Révélée' : `En cours · ${nbFaites()}/${NB}`;
     $('aMots').innerHTML = mots(sc).map(echapper).join('<br>');
-    $('aMantra').textContent = `« ${POUR[dom].mantra} »`;
+    $('aMantra').textContent = `« ${affirmation(dom)} »`;
     $('mix').innerHTML = ELS.map((e) => `<div class="barre"><span>${e}</span><div class="piste"><div class="rempli" style="background:var(${ENCRE[e]});transform:scaleX(${(sc[e] / tot).toFixed(3)})"></div></div><span>${Math.round(sc[e] / tot * 100)} %</span></div>`).join('');
     $('fEl').textContent = dom; $('fYoga').textContent = POUR[dom].yoga;
     $('fLune').textContent = `${CIEL_AUJ.phase} en ${CIEL_AUJ.signe}`;
     $('fSoleil').textContent = sol ? sol[0] : 'À renseigner';
+    const nu = numerologie();
+    $('fChemin').textContent = nu ? `${nu.chemin} · ${NOMBRES[nu.chemin][0]}` : 'À renseigner';
+    $('fAnnee').textContent = nu ? `${nu.annee} · ${NOMBRES[nu.annee][0]}` : 'À renseigner';
 
     // Frise : les 7 derniers jours réellement vécus (pas de jours simulés).
     const tuiles = []; let compte = 0;
@@ -456,7 +522,50 @@
     $('lunaisonAide').textContent = jPleine > 0 ? `Pleine lune dans ${jPleine} j (cercle jaune). Chaque rond coloré est un jour où tu as fait ton rituel.`
       : jPleine === 0 ? "Pleine lune aujourd'hui : regarde quelle couleur revient le plus depuis la nouvelle lune."
       : `Nouvelle lune dans ${jNouv} j. Chaque rond coloré est un jour où tu as fait ton rituel.`;
+    rendreCycle();
   }
+
+  /* ---------- Rituel de cycle : intention à la nouvelle lune, bilan à la pleine lune ---------- */
+  function cycleCourant() {
+    const lu = lunaisonDe(MAINTENANT), k = cle(lu.debut);
+    const donnee = donnees.cycles[k] || (donnees.cycles[k] = { intention: '', bilan: '' });
+    const jour = Math.round((deCle(AUJ) - deCle(k)) / 864e5) + 1;
+    return { lu, k, donnee, jour, apresPleine: AUJ >= cle(lu.pleine) };
+  }
+  function statsCycle(lu) {
+    const comptes = { Feu: 0, Eau: 0, Air: 0, Terre: 0 }; let n = 0;
+    for (let d = deCle(cle(lu.debut)); cle(d) <= AUJ; d.setDate(d.getDate() + 1)) {
+      const j = donnees.jours[cle(d)];
+      if (j && j.dominant && Object.keys(j.etapes || {}).length) { n++; comptes[j.dominant]++; }
+    }
+    const top = n ? [...ELS].sort((a, b) => comptes[b] - comptes[a])[0] : null;
+    return { n, top };
+  }
+  function rendreCycle() {
+    const c = cycleCourant(), st = statsCycle(c.lu);
+    $('cycleTexte').hidden = !c.donnee.intention; $('cycleTexte').textContent = c.donnee.intention ? `« ${c.donnee.intention} »` : '';
+    $('cycleForm').hidden = !!c.donnee.intention;
+    $('cycleBilan').hidden = !c.apresPleine;
+    $('bilanAttente').hidden = c.apresPleine;
+    $('bilanAttente').textContent = `Bilan de pleine lune le ${c.lu.pleine.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}.`;
+    $('bilanStats').textContent = st.n ? `${st.n} jour${st.n > 1 ? 's' : ''} de rituel depuis la nouvelle lune. Élément qui revient le plus : ${st.top} (${AFFIRMATIONS[st.top].pleine.replace(/\.$/, '').toLowerCase()}).` : 'Pas encore de rituel sur ce cycle : le bilan se nourrit de tes jours.';
+    $('bilanTexte').hidden = !c.donnee.bilan; $('bilanTexte').textContent = c.donnee.bilan;
+    $('bilanForm').hidden = !!c.donnee.bilan;
+  }
+  $('cycleOk').addEventListener('click', () => {
+    const t = $('cycleChamp').value.trim(); if (!t) { $('cycleChamp').focus(); return; }
+    const c = cycleCourant(); c.donnee.intention = t; sauver(); son.bol(174.6, 5, .18); rendreCycle(); rendreCiel(); verifierDetresse(t);
+  });
+  $('bilanOk').addEventListener('click', () => {
+    const t = $('bilanChamp').value.trim(); if (!t) { $('bilanChamp').focus(); return; }
+    const c = cycleCourant(); c.donnee.bilan = t; sauver(); son.bol(261.6, 6, .2); rendreCycle(); rendreCiel(); verifierDetresse(t);
+  });
+  // Bandeau de rendez-vous lunaire → bloc correspondant dans « Mon aura »
+  $('evenement').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-aller]'); if (!b) return;
+    onglet('vAura');
+    const cible = $(b.dataset.aller); setTimeout(() => { cible.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'center' }); const ch = cible.querySelector('textarea'); if (ch) ch.focus({ preventScroll: true }); }, 60);
+  });
 
   /* ---------- Journal ---------- */
   function rendreJournal() {
@@ -467,9 +576,13 @@
       return `<li class="entree"><canvas width="112" height="112" data-i="${i}" aria-hidden="true"></canvas><div class="infos">
         <span class="mono muted">${d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · ${echapper(j.phase || '')}${j.signe ? ' en ' + echapper(j.signe) : ''}</span>
         <span class="mots-courts">${(j.mots || []).map(echapper).join(' · ')}</span>
-        ${j.intention ? `<p>${echapper(j.intention)}</p>` : `<p class="muted">${Object.keys(j.etapes).length}/4 étapes · pas d'intention posée</p>`}
+        ${j.intention ? `<p>${echapper(j.intention)}</p>` : `<p class="muted">${Object.keys(j.etapes).length}/${NB} étapes · pas d'intention posée</p>`}
       </div></li>`;
     }).join('');
+    const cyc = Object.keys(donnees.cycles).filter((k) => donnees.cycles[k].intention || donnees.cycles[k].bilan).sort().reverse();
+    $('journalCycles').innerHTML = cyc.map((k) => { const c = donnees.cycles[k];
+      return `<div class="cycle"><span class="mono muted">Cycle du ${deCle(k).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span>${c.intention ? `<p class="cycle-texte">« ${echapper(c.intention)} »</p>` : ''}${c.bilan ? `<p>${echapper(c.bilan)}</p>` : ''}</div>`; }).join('');
+    if (cyc.length) $('journalVide').hidden = true;
     cles.forEach((k, i) => dessinerAura($('journal').querySelector(`canvas[data-i="${i}"]`), donnees.jours[k].sc, hash(k + (donnees.naissance || '')), false));
   }
 
