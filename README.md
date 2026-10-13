@@ -19,6 +19,7 @@ PWA française de rituel quotidien (spiritualité & bien-être : ciel du jour, L
 | `firestore.rules` | Règles Firestore versionnées, **jamais déployées automatiquement** |
 | `.github/workflows/auto-version.yml` | Met à jour `DERNIERE_MAJ`, les URLs `?v=` et `CACHE_NAME` à chaque push |
 | `.claude/skills/` | Skills design/animation d'Emil Kowalski (licence MIT) |
+| `A_FAIRE.md` | Liste de travail avant et après le lancement public (juridique, sécurité, mesure, produit, vitrine) |
 | `PROBLEMES_RESOLUS.md` | Historique des problèmes de dev et de leurs solutions |
 
 HTML + CSS + JS pur, sans framework ni build.
