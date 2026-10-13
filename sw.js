@@ -3,7 +3,7 @@
 // Icônes, polices, SDK Firebase, astronomy-engine : cache d'abord.
 // ⚠️ CACHE_NAME est mis à jour automatiquement par .github/workflows/auto-version.yml à chaque push.
 
-const CACHE_NAME = 'awe-ritual-r4';
+const CACHE_NAME = 'awe-ritual-r5';
 const CACHE_PREFIX = 'awe-ritual-';
 const DELAI_RESEAU_MS = 4000;
 
