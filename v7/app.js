@@ -384,7 +384,7 @@
   const ROMAINS = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
   function rendreGeste() {
     $('bulle').style.setProperty('--souffle', `var(${ENCRE[dominant(scores())]})`);
-    initRythme();
+    initRythme(); majBrume();
     if (jourAuj.etapes.souffle && !souffleEnCours) { $('bulleTexte').textContent = 'Fait'; $('souffleBtn').textContent = 'Refaire une minute'; }
     const arc = ARCANES[arcaneDuJour()], vu = !!jourAuj.etapes.arcane;
     $('aNum').textContent = ROMAINS[arcaneDuJour()];
@@ -394,6 +394,7 @@
     $('suiteArcane').hidden = !(vu && !jourAuj.etapes.intention);
   }
 
+  function majBrume() { document.documentElement.style.setProperty('--dominante', `var(${ENCRE[dominant(scores())]})`); }
   /* Rythmes : durées d'inspiration et d'expiration (s). Toujours 6 cycles = 1 min, sans rétention. */
   const RYTHMES = {
     apaiser: [4, 6, 'Inspire 4 s, expire 6 s : l\'expiration plus longue aide à se calmer.'],
@@ -636,7 +637,7 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && cle(new Date()) !== AUJ) location.reload(); });
 
   if (jourAuj.sc === undefined) instantane();
-  rendreCiel(); rendreEtapes(); rendreVive();
+  rendreCiel(); rendreEtapes(); rendreVive(); majBrume();
   let depart = 'vAujourdhui'; try { depart = sessionStorage.getItem('aura7-onglet') || depart; } catch (e) {}
   if (depart !== 'vAujourdhui') onglet(depart);
 })();
