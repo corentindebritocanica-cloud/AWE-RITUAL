@@ -49,6 +49,8 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .riso{position:relative;margin:0;font:800 clamp(2.4rem,11vw,3.2rem)/.88 var(--display);letter-spacing:-.035em;color:var(--blue);text-wrap:balance}
 .riso::after{content:attr(data-t);position:absolute;inset:0;transform:translate(3px,2px);color:var(--pink);mix-blend-mode:var(--blend);pointer-events:none}
 .hero-texte{display:grid;gap:8px;min-width:0}
+.riso.accroche{font-size:clamp(1.6rem,7.4vw,2rem);line-height:1.02}
+.riso.accroche::after{white-space:pre-line}
 .ciel-ligne{margin:0;color:var(--muted);line-height:1.6;text-transform:none;letter-spacing:.02em}
 .ciel-ligne b{color:var(--ink)}
 .evenement{margin:0;padding:10px 14px;border:1.5px dashed var(--pink);border-radius:14px;font-size:.92rem}

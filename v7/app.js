@@ -456,20 +456,21 @@
   /* Partage : image 1080×1920 au format story (aura + mots + affirmation) via la feuille de partage iOS, sinon texte copié. */
   $('partager').addEventListener('click', async () => {
     const sc = scores(), dom = dominant(sc), m = mots(sc);
-    const af = affirmation(dom), texte = `Who am I? · ${MAINTENANT.toLocaleDateString('fr-FR')}\nAujourd'hui je suis : ${m.join(', ')}.\n${af}`;
+    const af = affirmation(dom), texte = `AWE Ritual · ${MAINTENANT.toLocaleDateString('fr-FR')}\nAujourd'hui je suis : ${m.join(', ')}.\n${af}`;
     try {
       const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920;
       const ctx = cv.getContext('2d'), aura = document.createElement('canvas'); aura.width = aura.height = 900;
       dessinerAura(aura, sc, graine());
       ctx.fillStyle = css('--paper'); ctx.fillRect(0, 0, 1080, 1920);
       ctx.fillStyle = css('--ink'); ctx.font = '700 30px "Space Mono", monospace';
-      ctx.fillText('WHO AM I?', 90, 250); ctx.textAlign = 'right'; ctx.fillText(MAINTENANT.toLocaleDateString('fr-FR'), 990, 250);
+      ctx.fillText('AWE RITUAL', 90, 250); ctx.textAlign = 'right'; ctx.fillText(MAINTENANT.toLocaleDateString('fr-FR'), 990, 250);
       ctx.drawImage(aura, 90, 300); ctx.strokeStyle = css('--ink'); ctx.lineWidth = 3; ctx.strokeRect(90, 300, 900, 900);
       ctx.textAlign = 'left'; ctx.font = 'italic 84px "Instrument Serif", Georgia, serif'; ctx.fillText(m.join(' · '), 90, 1340, 900);
       ctx.font = 'italic 50px "Instrument Serif", Georgia, serif'; ctx.fillStyle = css('--muted');
       const lignes = [], motsAf = af.split(' '); let l = '';
       motsAf.forEach((w) => { const t = l ? l + ' ' + w : w; if (ctx.measureText(t).width > 900) { lignes.push(l); l = w; } else l = t; }); lignes.push(l);
       lignes.forEach((t, i) => ctx.fillText(t, 90, 1440 + i * 64));
+      ctx.font = 'italic 40px "Instrument Serif", Georgia, serif'; ctx.fillText('Ton ciel, ton souffle, ton jour', 90, 1690);
       ctx.font = '700 26px "Space Mono", monospace'; ctx.fillText(`LUNE ${CIEL_AUJ.phase.toUpperCase()} EN ${CIEL_AUJ.signe.toUpperCase()}`, 90, 1760);
       const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
       const fichier = new File([blob], `aura-${AUJ}.png`, { type: 'image/png' });

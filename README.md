@@ -1,8 +1,8 @@
-# AWE Ritual · Who am I?
+# AWE Ritual · Ton ciel, ton souffle, ton jour
 
 PWA française de rituel quotidien (spiritualité & bien-être : ciel du jour, Lune, arcane, chakra, souffle, intention). Pensée exclusivement pour iPhone, installée sur l'écran d'accueil.
 
-- **Nom** : AWE (Aura · Wisdom · Energy), app « AWE Ritual », accroche « Who am I? ».
+- **Nom** : AWE (Aura · Wisdom · Energy), app « AWE Ritual », accroche « Ton ciel, ton souffle, ton jour » (remplace « Who am I? » le 13/10/2026 : l'app est devenue un rituel du jour plutôt qu'une quête d'identité).
 - **Statut** : phase prototype. Accès réservé à l'admin.
 - **URL** : https://corentindebritocanica-cloud.github.io/AWE-RITUAL/
 
