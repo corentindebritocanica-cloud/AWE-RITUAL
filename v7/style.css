@@ -273,3 +273,24 @@ html.tuto-ouvert body{overflow:hidden}
 #scintille i{position:absolute;width:2px;height:2px;border-radius:50%;background:#f4f1ff;box-shadow:0 0 6px 1px rgba(244,241,255,.7);opacity:.2;animation:scintille 6s ease-in-out infinite}
 @keyframes scintille{50%{opacity:.95;transform:scale(1.4)}}
 @media (prefers-reduced-motion:reduce){#scintille i{animation:none;opacity:.6}}
+
+/* ---------- Profil (premier lancement et « Modifier mon profil ») ---------- */
+.salut{margin:0;font:italic 300 1.15rem/1.2 var(--serif);color:var(--muted)}
+.profil{position:fixed;inset:0;z-index:110;display:grid;align-items:end;background:rgba(8,10,26,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity 220ms var(--ease);
+  padding:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-right,0px) + 12px) calc(env(safe-area-inset-bottom,0px) + 12px) calc(env(safe-area-inset-left,0px) + 12px);overflow-y:auto}
+.profil.visible{opacity:1}
+.profil-carte{max-width:460px;width:100%;margin:0 auto;display:grid;gap:14px;padding:22px 20px 20px;background:var(--card);border:1.5px solid var(--line);border-radius:26px;transform:translateY(24px);transition:transform 320ms var(--ease)}
+.profil.visible .profil-carte{transform:none}
+.profil-haut{display:flex;justify-content:space-between;align-items:center}
+.profil-haut .lien{padding:4px 0}
+.profil h2{margin:0;font:400 2rem/1.05 var(--serif);font-variation-settings:'opsz' 96;letter-spacing:-.02em}
+.profil p{margin:0}
+.champ{display:grid;gap:6px;font-size:.9rem;font-weight:600;color:var(--muted)}
+.champ input{font:16px var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;min-height:48px;width:100%;-webkit-appearance:none;appearance:none}
+.champ input:focus{border-color:var(--ink);outline:none}
+.optionnel{margin:0;padding:4px 0 0;border:0;display:grid;gap:12px}
+.optionnel legend{padding:0 0 10px}
+.erreur{margin:0;color:var(--pink);font-weight:600;font-size:.9rem}
+.profil button[type=submit]{min-height:50px}
+html.profil-ouvert{overflow:hidden}
+@media (prefers-reduced-motion:reduce){.profil,.profil-carte{transition:none}}

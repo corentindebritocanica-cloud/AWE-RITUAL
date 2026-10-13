@@ -150,7 +150,9 @@
   }
 
   let vu = false; try { vu = localStorage.getItem(CLE) === '1'; } catch (e) {}
-  if (!vu) quandPret(ouvrir);
+  // Le tutoriel attend que le profil (prénom + date de naissance) soit rempli.
+  let profilOk = false; try { profilOk = !!(JSON.parse(localStorage.getItem('aura7') || '{}') || {}).prenom; } catch (e) {}
+  if (!vu) { if (profilOk) quandPret(ouvrir); else document.addEventListener('awe:profil', () => setTimeout(ouvrir, 350), { once: true }); }
 
   const lienRevoir = $('revoirTuto');
   if (lienRevoir) lienRevoir.addEventListener('click', ouvrir);

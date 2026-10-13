@@ -307,12 +307,56 @@
   }
   function changerNaissance(v) {
     if (!v || v === donnees.naissance) return;
-    donnees.naissance = v; store.set('aura-birth', v);
+    donnees.naissance = v; store.set('aura-birth', v); sauver();
     // Les cartes dépendent de la date de naissance : on rejoue le ressenti du jour.
     jourAuj.reponses = []; delete jourAuj.etapes.ressenti; delete jourAuj.etapes.arcane;
     cartes = cartesDuJour(); viderDeck();
     instantane(); rendreCiel(); rendreEtapes(); rendreVive();
   }
+  /* ---------- Profil : prénom + date de naissance (+ heure et lieu facultatifs), demandé au premier lancement ---------- */
+  function rendreSalut() {
+    const h = new Date().getHours(), p = $('salut');
+    p.hidden = !donnees.prenom;
+    if (donnees.prenom) p.textContent = `${h >= 18 || h < 5 ? 'Bonsoir' : 'Bonjour'} ${donnees.prenom}`;
+  }
+  let profilPremiere = false;
+  function ouvrirProfil(premiere) {
+    profilPremiere = !!premiere;
+    $('pPrenom').value = donnees.prenom || ''; $('pNaissance').value = donnees.naissance || '';
+    $('pHeure').value = donnees.heure || ''; $('pLieu').value = donnees.lieu || '';
+    $('pNaissance').max = AUJ; $('pErreur').hidden = true;
+    $('pTitre').textContent = premiere ? 'Bienvenue' : 'Ton profil';
+    $('pFermer').hidden = !!premiere;
+    $('profil').hidden = false; document.documentElement.classList.add('profil-ouvert');
+    requestAnimationFrame(() => $('profil').classList.add('visible'));
+  }
+  function fermerProfil() {
+    $('profil').classList.remove('visible'); document.documentElement.classList.remove('profil-ouvert');
+    setTimeout(() => { $('profil').hidden = true; }, reduit ? 0 : 220);
+  }
+  $('profilForm').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const prenom = $('pPrenom').value.trim().replace(/\s+/g, ' '), nais = $('pNaissance').value;
+    const erreur = (t, champ) => { $('pErreur').textContent = t; $('pErreur').hidden = false; $(champ).focus(); };
+    if (!prenom) return erreur('Indique ton prénom.', 'pPrenom');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(nais) || nais < '1900-01-01' || nais > AUJ) return erreur('Indique une date de naissance valide.', 'pNaissance');
+    donnees.prenom = prenom.slice(0, 30);
+    donnees.heure = $('pHeure').value || '';
+    donnees.lieu = $('pLieu').value.trim().slice(0, 60);
+    if (nais !== donnees.naissance) changerNaissance(nais);
+    sauver(); rendreSalut(); fermerProfil();
+    if (!$('vAura').hidden) rendreAura();
+    if (profilPremiere) document.dispatchEvent(new Event('awe:profil'));
+  });
+  $('pFermer').addEventListener('click', fermerProfil);
+  $('modifierProfil').addEventListener('click', () => ouvrirProfil(false));
+  function auDeverrouillage(fn) {
+    const h = document.documentElement;
+    if (!h.classList.contains('verrou')) return setTimeout(fn, 300);
+    const mo = new MutationObserver(() => { if (!h.classList.contains('verrou')) { mo.disconnect(); setTimeout(fn, 300); } });
+    mo.observe(h, { attributes: true, attributeFilter: ['class'] });
+  }
+
   $('naissance').addEventListener('change', (e) => changerNaissance(e.target.value));
   $('naissance2').addEventListener('change', (e) => { changerNaissance(e.target.value); rendreAura(); });
   $('okCiel').addEventListener('click', () => valider('ciel'));
@@ -394,7 +438,7 @@
     $('suiteArcane').hidden = !(vu && !jourAuj.etapes.intention);
   }
 
-  /* ---------- Ciel vivant : fond fixe (dégradé selon l'heure, nébuleuse aux couleurs de l'aura, étoiles du jour, vraie Lune) ---------- */
+  /* ---------- Ciel vivant : fond fixe (dégradé selon l'heure, nébuleuse aux couleurs de l'aura, étoiles du jour) ---------- */
   function sombre() { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
   function hasard(graine) { let s = graine >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function teinte(hex, a) { const n = parseInt(hex.replace('#', ''), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
@@ -411,7 +455,7 @@
     c.fillStyle = g; c.fillRect(0, 0, W, H);
     // Nébuleuse : l'élément dominant près de la Lune, les deux suivants plus bas.
     const sc = scores(), ordre = [...ELS].sort((x, y) => sc[y] - sc[x]);
-    const nebuleuse = [[ordre[0], W * .78, H * .16, W * .9, nuit ? .30 : .26], [ordre[1], W * .1, H * .55, W * .8, nuit ? .16 : .16], [ordre[2], W * .9, H * .92, W * .75, nuit ? .12 : .14]];
+    const nebuleuse = [[ordre[0], W * .7, H * .12, W * .95, nuit ? .30 : .26], [ordre[1], W * .1, H * .55, W * .8, nuit ? .16 : .16], [ordre[2], W * .9, H * .92, W * .75, nuit ? .12 : .14]];
     nebuleuse.forEach(([el, x, y, r, al]) => {
       const col = css(ENCRE[el]) || '#888888', rg = c.createRadialGradient(x, y, 0, x, y, r);
       rg.addColorStop(0, teinte(col, al)); rg.addColorStop(.55, teinte(col, al * .35)); rg.addColorStop(1, teinte(col, 0));
@@ -426,29 +470,6 @@
         c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
       }
     } else { for (let k = 0; k < 60; k++) rnd(); }
-    // La Lune du jour, en haut à droite, coupée par le bord.
-    const ang = CIEL_AUJ.angle, R = Math.min(W * .28, 140), cx = ang <= 180 ? W - R - 8 : W - R * .45, cy = R * .5 + 70;
-    const halo = c.createRadialGradient(cx, cy, R * .9, cx, cy, R * 2.6);
-    halo.addColorStop(0, nuit ? `rgba(220,215,255,${.08 + .14 * CIEL_AUJ.illum})` : 'rgba(255,255,255,.35)'); halo.addColorStop(1, 'rgba(220,215,255,0)');
-    c.fillStyle = halo; c.fillRect(0, 0, W, H);
-    c.save(); c.translate(cx, cy);
-    c.fillStyle = nuit ? 'rgba(34,36,66,.55)' : 'rgba(200,204,226,.35)';
-    c.beginPath(); c.arc(0, 0, R, 0, 7); c.fill();
-    const croissante = ang <= 180, a2 = croissante ? ang : 360 - ang, x = R * Math.cos(rad(a2));
-    if (!croissante) c.scale(-1, 1);
-    c.beginPath(); c.arc(0, 0, R, -Math.PI / 2, Math.PI / 2, false);
-    c.ellipse(0, 0, Math.abs(x), R, 0, Math.PI / 2, -Math.PI / 2, x > 0);
-    c.closePath();
-    const lum = c.createRadialGradient(-R * .3, -R * .3, R * .1, 0, 0, R);
-    lum.addColorStop(0, nuit ? '#fbf6e9' : '#ffffff'); lum.addColorStop(1, nuit ? '#d9d2bd' : '#eceef8');
-    c.fillStyle = lum; c.fill();
-    c.clip();
-    const rc = hasard(7);
-    for (let k = 0; k < 14; k++) {
-      const px = (rc() * 2 - 1) * R * .8, py = (rc() * 2 - 1) * R * .8, pr = R * (.05 + rc() * .12);
-      c.fillStyle = `rgba(120,112,95,${.06 + rc() * .08})`; c.beginPath(); c.arc(px, py, pr, 0, 7); c.fill();
-    }
-    c.restore();
     // Quelques étoiles qui scintillent (DOM, animées en CSS).
     const sc2 = $('scintille');
     if (sc2) {
@@ -706,7 +727,8 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && cle(new Date()) !== AUJ) location.reload(); });
 
   if (jourAuj.sc === undefined) instantane();
-  rendreCiel(); rendreEtapes(); rendreVive(); majBrume();
+  rendreCiel(); rendreEtapes(); rendreVive(); majBrume(); rendreSalut();
+  if (!donnees.prenom) auDeverrouillage(() => ouvrirProfil(true));
   let depart = 'vAujourdhui'; try { depart = sessionStorage.getItem('aura7-onglet') || depart; } catch (e) {}
   if (depart !== 'vAujourdhui') onglet(depart);
 })();

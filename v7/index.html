@@ -38,6 +38,7 @@
     <div class="hero">
       <div class="aura-vive" aria-hidden="true"><canvas id="auraVive" width="320" height="320"></canvas></div>
       <div class="hero-texte">
+        <p class="salut" id="salut" hidden></p>
         <h1 class="riso accroche" data-t="Ton ciel,&#10;ton souffle,&#10;ton jour" aria-label="Ton ciel, ton souffle, ton jour">Ton ciel,<br>ton souffle,<br>ton jour</h1>
         <p class="ciel-ligne mono" id="cielLigne"></p>
       </div>
@@ -257,6 +258,7 @@
     <label class="naissance discret" for="naissance2">Date de naissance
       <input id="naissance2" type="date">
     </label>
+    <button type="button" class="lien" id="modifierProfil">Modifier mon profil</button>
   </section>
 
   <!-- ========== Journal ========== -->
@@ -289,6 +291,31 @@
     Journal
   </button>
 </nav>
+
+<div class="profil" id="profil" role="dialog" aria-modal="true" aria-labelledby="pTitre" hidden>
+  <form class="profil-carte" id="profilForm" novalidate>
+    <div class="profil-haut"><span class="mono muted">AWE Ritual</span><button type="button" class="lien" id="pFermer" hidden>Fermer</button></div>
+    <h2 id="pTitre">Bienvenue</h2>
+    <p class="muted">Faisons connaissance. Ces informations restent sur ton iPhone et personnalisent ton aura et ton nombre du jour.</p>
+    <label class="champ">Ton prénom
+      <input id="pPrenom" type="text" autocomplete="given-name" autocapitalize="words" maxlength="30" enterkeyhint="next" required>
+    </label>
+    <label class="champ">Ta date de naissance
+      <input id="pNaissance" type="date" min="1900-01-01" required>
+    </label>
+    <fieldset class="optionnel">
+      <legend class="mono muted">Facultatif · pour ton futur thème du ciel</legend>
+      <label class="champ">Heure de naissance
+        <input id="pHeure" type="time">
+      </label>
+      <label class="champ">Lieu de naissance
+        <input id="pLieu" type="text" autocomplete="off" maxlength="60" placeholder="Ville, pays" enterkeyhint="done">
+      </label>
+    </fieldset>
+    <p class="erreur" id="pErreur" role="alert" hidden></p>
+    <button type="submit" class="principal">C'est parti</button>
+  </form>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
