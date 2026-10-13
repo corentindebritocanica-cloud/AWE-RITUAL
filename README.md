@@ -37,6 +37,8 @@ HTML + CSS + JS pur, sans framework ni build.
 ## Données
 
 - **V7** stocke tout dans `localStorage` : `aura7` = date de naissance, un instantané par jour (étapes, réponses, intention, scores, affirmation, nombre du jour) et un objet par lunaison (`cycles` : intention, bilan) ; `aura-birth` et `awe-son` sont partagés. Aucune collection Firestore utilisée.
+- **Tutoriel** (`v7/tuto.js`) : affiché au premier lancement, puis marqué vu par `awe-tuto-vu` ; relançable via « Revoir le tutoriel » en bas de l'écran Aujourd'hui.
+- **Réinitialiser l'app** (menu admin) : efface tout le `localStorage` sauf `awe-admin` et les clés `firebase:`, le `sessionStorage`, les caches `awe-ritual-*` et le service worker, puis rouvre V7 comme une app neuve. La session reste connectée.
 - **Archives** : les prototypes V1 à V6 (Constellation, Aura fanzine, Mandala, Oracle, Chakras, Mala) ont été retirés de `main` le 13/10/2026 et restent consultables sur la branche [`archive/prototypes-v1-v6`](https://github.com/corentindebritocanica-cloud/AWE-RITUAL/tree/archive/prototypes-v1-v6).
 - **Firestore** : base `(default)`, région `eur3`. Règles publiées actuellement : tout refusé. Règles du dépôt : lecture / écriture réservées au claim admin. À publier via la console après test dans le simulateur.
 

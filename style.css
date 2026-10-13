@@ -110,3 +110,4 @@ h2{margin:0;font:500 clamp(2.2rem,10vw,2.8rem)/1.02 var(--display);text-wrap:bal
   .proto{animation:none}
   .principal:active,.proto:active{transform:none}
 }
+.pied{flex-wrap:wrap}.pied .lien{white-space:nowrap}

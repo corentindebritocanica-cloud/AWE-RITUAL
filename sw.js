@@ -9,7 +9,7 @@ const DELAI_RESEAU_MS = 4000;
 
 const CODE = [
   './', './index.html', './style.css', './app.js', './commun.js',
-  './v7/', './v7/index.html', './v7/style.css', './v7/app.js'
+  './v7/', './v7/index.html', './v7/style.css', './v7/app.js', './v7/tuto.js'
 ];
 const ANNEXES = [
   './manifest.json', './icones/icone-192.png', './icones/icone-512.png',

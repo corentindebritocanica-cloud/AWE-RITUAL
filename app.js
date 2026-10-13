@@ -79,6 +79,18 @@
     afficher('connexion');
   });
 
+  // Admin : remet l'app à neuf (données du rituel, tutoriel, réglages, cache hors ligne).
+  // La session Firebase est conservée pour ne pas avoir à se reconnecter.
+  $('reinit').addEventListener('click', async () => {
+    if (!confirm("Réinitialiser l'app ?\n\nTout le rituel (auras, journal, intentions, date de naissance, réglages) sera effacé de cet appareil, et le tutoriel se relancera. Tu restes connecté.")) return;
+    const garder = ['awe-admin'];
+    try { Object.keys(localStorage).filter((k) => !garder.includes(k) && !k.startsWith('firebase:')).forEach((k) => localStorage.removeItem(k)); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+    try { if (window.caches) await Promise.all((await caches.keys()).filter((k) => k.startsWith('awe-ritual-')).map((k) => caches.delete(k))); } catch (e) {}
+    try { if (navigator.serviceWorker) await Promise.all((await navigator.serviceWorker.getRegistrations()).map((r) => r.unregister())); } catch (e) {}
+    location.replace('./v7/');
+  });
+
   enregistrerSW('./');
   verifierVersion();
   demarrer();
