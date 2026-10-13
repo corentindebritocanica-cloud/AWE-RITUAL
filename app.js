@@ -1,4 +1,4 @@
-/* AWE Ritual — accueil : connexion e-mail / mot de passe, puis menu V1 / V2 (admin uniquement pour l'instant). */
+/* AWE Ritual — accueil : connexion e-mail / mot de passe, puis menu du rituel V7 (admin uniquement pour l'instant). */
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
