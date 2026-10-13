@@ -8,22 +8,22 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="AWE Ritual">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eceaf1">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#15172a">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#e4ebf6">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c1128">
 <meta name="color-scheme" content="light dark">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../icones/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="../icones/icone-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Instrument+Serif:ital@0;1&amp;family=Instrument+Sans:wght@400;500;600&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&amp;display=swap">
 <link rel="stylesheet" href="style.css?v=202610131743530200">
 <!-- Contenu masqué tant que le compte admin n'est pas confirmé (commun.js → AWE.garder) -->
 <style>html.verrou body{visibility:hidden}</style>
 <script>window.DERNIERE_MAJ = '2026-10-13T17:43:53+02:00';</script>
 </head>
 <body>
-<div class="brume" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="ciel-fond" aria-hidden="true"><canvas id="cielFond"></canvas><div id="scintille"></div></div>
 <header class="tete">
   <a class="retour mono" href="../" aria-label="Retour au menu">‹ Menu</a>
   <span class="mono muted" id="date"></span>

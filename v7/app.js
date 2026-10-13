@@ -394,7 +394,76 @@
     $('suiteArcane').hidden = !(vu && !jourAuj.etapes.intention);
   }
 
-  function majBrume() { document.documentElement.style.setProperty('--dominante', `var(${ENCRE[dominant(scores())]})`); }
+  /* ---------- Ciel vivant : fond fixe (dégradé selon l'heure, nébuleuse aux couleurs de l'aura, étoiles du jour, vraie Lune) ---------- */
+  function sombre() { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+  function hasard(graine) { let s = graine >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function teinte(hex, a) { const n = parseInt(hex.replace('#', ''), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+  function dessinerCiel() {
+    const cv = $('cielFond'); if (!cv) return;
+    const W = innerWidth, H = Math.max(innerHeight, screen.height || 0), dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = W * dpr; cv.height = H * dpr;
+    const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const nuit = sombre(), h = new Date().getHours();
+    // Dégradé : nuit profonde, soir indigo, matin bleu-violet (sombre) / aube, jour, crépuscule (clair).
+    const haut = nuit ? (h < 5 || h >= 22 ? '#05060f' : h < 10 ? '#0e1430' : h >= 18 ? '#120f2e' : '#0c1128') : (h < 10 ? '#dfe3f3' : h >= 18 ? '#e3dcef' : '#e4ebf6');
+    const bas = nuit ? (h < 5 || h >= 22 ? '#0d0b1e' : h < 10 ? '#2a2140' : h >= 18 ? '#2b1838' : '#161a38') : (h < 10 ? '#f6e3e0' : h >= 18 ? '#f2dccf' : '#eef0f6');
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, haut); g.addColorStop(1, bas);
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    // Nébuleuse : l'élément dominant près de la Lune, les deux suivants plus bas.
+    const sc = scores(), ordre = [...ELS].sort((x, y) => sc[y] - sc[x]);
+    const nebuleuse = [[ordre[0], W * .78, H * .16, W * .9, nuit ? .30 : .26], [ordre[1], W * .1, H * .55, W * .8, nuit ? .16 : .16], [ordre[2], W * .9, H * .92, W * .75, nuit ? .12 : .14]];
+    nebuleuse.forEach(([el, x, y, r, al]) => {
+      const col = css(ENCRE[el]) || '#888888', rg = c.createRadialGradient(x, y, 0, x, y, r);
+      rg.addColorStop(0, teinte(col, al)); rg.addColorStop(.55, teinte(col, al * .35)); rg.addColorStop(1, teinte(col, 0));
+      c.fillStyle = rg; c.fillRect(0, 0, W, H);
+    });
+    // Étoiles placées selon la date (même ciel toute la journée).
+    const rnd = hasard(+AUJ.replace(/-/g, ''));
+    if (nuit) {
+      for (let k = 0; k < Math.round(W * H / 2600); k++) {
+        const x = rnd() * W, y = rnd() * H, t = rnd(), r = t > .97 ? 1.3 : t > .85 ? .9 : .55;
+        c.fillStyle = `rgba(236,234,246,${(.25 + rnd() * .6) * (1 - y / H * .45)})`;
+        c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
+      }
+    } else { for (let k = 0; k < 60; k++) rnd(); }
+    // La Lune du jour, en haut à droite, coupée par le bord.
+    const ang = CIEL_AUJ.angle, R = Math.min(W * .28, 140), cx = ang <= 180 ? W - R - 8 : W - R * .45, cy = R * .5 + 70;
+    const halo = c.createRadialGradient(cx, cy, R * .9, cx, cy, R * 2.6);
+    halo.addColorStop(0, nuit ? `rgba(220,215,255,${.08 + .14 * CIEL_AUJ.illum})` : 'rgba(255,255,255,.35)'); halo.addColorStop(1, 'rgba(220,215,255,0)');
+    c.fillStyle = halo; c.fillRect(0, 0, W, H);
+    c.save(); c.translate(cx, cy);
+    c.fillStyle = nuit ? 'rgba(34,36,66,.55)' : 'rgba(200,204,226,.35)';
+    c.beginPath(); c.arc(0, 0, R, 0, 7); c.fill();
+    const croissante = ang <= 180, a2 = croissante ? ang : 360 - ang, x = R * Math.cos(rad(a2));
+    if (!croissante) c.scale(-1, 1);
+    c.beginPath(); c.arc(0, 0, R, -Math.PI / 2, Math.PI / 2, false);
+    c.ellipse(0, 0, Math.abs(x), R, 0, Math.PI / 2, -Math.PI / 2, x > 0);
+    c.closePath();
+    const lum = c.createRadialGradient(-R * .3, -R * .3, R * .1, 0, 0, R);
+    lum.addColorStop(0, nuit ? '#fbf6e9' : '#ffffff'); lum.addColorStop(1, nuit ? '#d9d2bd' : '#eceef8');
+    c.fillStyle = lum; c.fill();
+    c.clip();
+    const rc = hasard(7);
+    for (let k = 0; k < 14; k++) {
+      const px = (rc() * 2 - 1) * R * .8, py = (rc() * 2 - 1) * R * .8, pr = R * (.05 + rc() * .12);
+      c.fillStyle = `rgba(120,112,95,${.06 + rc() * .08})`; c.beginPath(); c.arc(px, py, pr, 0, 7); c.fill();
+    }
+    c.restore();
+    // Quelques étoiles qui scintillent (DOM, animées en CSS).
+    const sc2 = $('scintille');
+    if (sc2) {
+      sc2.innerHTML = '';
+      if (nuit) for (let k = 0; k < 12; k++) {
+        const i = document.createElement('i');
+        i.style.left = (rnd() * 100).toFixed(1) + '%'; i.style.top = (rnd() * 92).toFixed(1) + '%';
+        i.style.animationDelay = (-rnd() * 6).toFixed(1) + 's'; i.style.animationDuration = (4 + rnd() * 5).toFixed(1) + 's';
+        sc2.appendChild(i);
+      }
+    }
+  }
+  function majBrume() { dessinerCiel(); }
+  let tCiel = null;
+  addEventListener('resize', () => { clearTimeout(tCiel); tCiel = setTimeout(dessinerCiel, 200); });
   /* Rythmes : durées d'inspiration et d'expiration (s). Toujours 6 cycles = 1 min, sans rétention. */
   const RYTHMES = {
     apaiser: [4, 6, 'Inspire 4 s, expire 6 s : l\'expiration plus longue aide à se calmer.'],
@@ -487,16 +556,16 @@
       const ctx = cv.getContext('2d'), aura = document.createElement('canvas'); aura.width = aura.height = 900;
       dessinerAura(aura, sc, graine());
       ctx.fillStyle = css('--paper'); ctx.fillRect(0, 0, 1080, 1920);
-      ctx.fillStyle = css('--ink'); ctx.font = '700 30px "Space Mono", monospace';
+      ctx.fillStyle = css('--ink'); ctx.font = '600 30px -apple-system, system-ui, sans-serif';
       ctx.fillText('AWE RITUAL', 90, 250); ctx.textAlign = 'right'; ctx.fillText(MAINTENANT.toLocaleDateString('fr-FR'), 990, 250);
       ctx.drawImage(aura, 90, 300); ctx.strokeStyle = css('--ink'); ctx.lineWidth = 3; ctx.strokeRect(90, 300, 900, 900);
-      ctx.textAlign = 'left'; ctx.font = 'italic 84px "Instrument Serif", Georgia, serif'; ctx.fillText(m.join(' · '), 90, 1340, 900);
-      ctx.font = 'italic 50px "Instrument Serif", Georgia, serif'; ctx.fillStyle = css('--muted');
+      ctx.textAlign = 'left'; ctx.font = 'italic 84px "Fraunces", Georgia, serif'; ctx.fillText(m.join(' · '), 90, 1340, 900);
+      ctx.font = 'italic 50px "Fraunces", Georgia, serif'; ctx.fillStyle = css('--muted');
       const lignes = [], motsAf = af.split(' '); let l = '';
       motsAf.forEach((w) => { const t = l ? l + ' ' + w : w; if (ctx.measureText(t).width > 900) { lignes.push(l); l = w; } else l = t; }); lignes.push(l);
       lignes.forEach((t, i) => ctx.fillText(t, 90, 1440 + i * 64));
-      ctx.font = 'italic 40px "Instrument Serif", Georgia, serif'; ctx.fillText('Ton ciel, ton souffle, ton jour', 90, 1690);
-      ctx.font = '700 26px "Space Mono", monospace'; ctx.fillText(`LUNE ${CIEL_AUJ.phase.toUpperCase()} EN ${CIEL_AUJ.signe.toUpperCase()}`, 90, 1760);
+      ctx.font = 'italic 40px "Fraunces", Georgia, serif'; ctx.fillText('Ton ciel, ton souffle, ton jour', 90, 1690);
+      ctx.font = '600 26px -apple-system, system-ui, sans-serif'; ctx.fillText(`LUNE ${CIEL_AUJ.phase.toUpperCase()} EN ${CIEL_AUJ.signe.toUpperCase()}`, 90, 1760);
       const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
       const fichier = new File([blob], `aura-${AUJ}.png`, { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [fichier] })) { await navigator.share({ files: [fichier], text: texte }); return; }
@@ -630,7 +699,7 @@
   bSon.addEventListener('click', () => { bSon.setAttribute('aria-pressed', String(son.basculer())); if (son.actif) son.bol(261.6, 2.5, .12); });
 
   /* Redessiner les encres si le thème change */
-  const redessiner = () => { rendreVive(); if (!$('revelation').hidden) rendreRevelation(); if (!$('vAura').hidden) rendreAura(); if (!$('vJournal').hidden) rendreJournal(); };
+  const redessiner = () => { dessinerCiel(); rendreVive(); if (!$('revelation').hidden) rendreRevelation(); if (!$('vAura').hidden) rendreAura(); if (!$('vJournal').hidden) rendreJournal(); };
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redessiner);
 
   /* Changement de jour pendant que l'app reste ouverte : on recharge au retour. */

@@ -4,16 +4,16 @@
 :root{
   --paper:#eceaf1; --card:#f8f7fb; --ink:#1f2a7a; --muted:#5b6290; --line:rgba(31,42,122,.2);
   --pink:#ff4fa3; --blue:#0a78c2; --yellow:#ffd400; --green:#00a565; --blend:multiply;
-  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
-  --serif:"Instrument Serif",Georgia,serif;
-  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"Space Mono",ui-monospace,Menlo,monospace;
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",sans-serif;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",sans-serif;
+  --mono:var(--body);
   --ease:cubic-bezier(.23,1,.32,1);
   --barre:64px;
-  --fond:#e9e6f3; --verre:rgba(250,248,253,.74); --dominante:var(--blue);
+  --fond:#e4ebf6; --verre:rgba(255,255,255,.62);
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15172a;--card:#1d2038;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;--fond:#0f1124;--verre:rgba(29,32,56,.66);color-scheme:dark}}
-:root[data-theme="dark"]{--paper:#15172a;--card:#1d2038;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;--fond:#0f1124;--verre:rgba(29,32,56,.66);color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15172a;--card:#171a34;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;--fond:#0c1128;--verre:rgba(16,18,40,.6);color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#15172a;--card:#171a34;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;--fond:#0c1128;--verre:rgba(16,18,40,.6);color-scheme:dark}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -29,10 +29,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{
 button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .principal{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .lien{border:0;padding:6px 0;text-decoration:underline;text-underline-offset:3px;font-weight:500;color:var(--muted);justify-self:start}
-.mono{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.mono{font-family:var(--body);font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
 .aide{margin:0;font-size:.85rem;text-align:center}
-.phrase{margin:0;font:400 1.35rem/1.25 var(--serif);font-style:italic;text-wrap:pretty}
+.phrase{margin:0;font:300 1.35rem/1.3 var(--serif);font-style:italic;font-variation-settings:'opsz' 36;text-wrap:pretty}
 
 /* ---------- En-tête ---------- */
 .tete{max-width:480px;margin:0 auto 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -47,10 +47,11 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .aura-vive{width:108px;aspect-ratio:1;border-radius:50%;overflow:hidden;border:1.5px solid var(--ink);animation:respire 6s ease-in-out infinite}
 .aura-vive canvas{width:100%;height:100%;display:block}
 @keyframes respire{50%{transform:scale(1.035)}}
-.riso{position:relative;margin:0;font:800 clamp(2.4rem,11vw,3.2rem)/.88 var(--display);letter-spacing:-.035em;color:var(--blue);text-wrap:balance}
-.riso::after{content:attr(data-t);position:absolute;inset:0;transform:translate(3px,2px);color:var(--pink);mix-blend-mode:var(--blend);pointer-events:none}
+.riso{position:relative;margin:0;font:350 clamp(2.4rem,11vw,3.2rem)/.95 var(--serif);font-variation-settings:'opsz' 144;letter-spacing:-.025em;color:var(--ink);text-wrap:balance}
+.riso em{font-style:italic;font-weight:300}
+.riso::after{content:none}
 .hero-texte{display:grid;gap:8px;min-width:0}
-.riso.accroche{font-size:clamp(1.6rem,7.4vw,2rem);line-height:1.02}
+.riso.accroche{font-size:clamp(1.85rem,8.4vw,2.3rem);line-height:1.02}
 .riso.accroche::after{white-space:pre-line}
 .ciel-ligne{margin:0;color:var(--muted);line-height:1.6;text-transform:none;letter-spacing:.02em}
 .ciel-ligne b{color:var(--ink)}
@@ -71,7 +72,7 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .etape-tete:active{transform:none;background:var(--line)}
 .etape-tete .num{color:var(--muted)}
 .titres{display:grid;gap:1px;min-width:0}
-.titres b{font:700 1.15rem/1.15 var(--display)}
+.titres b{font:400 1.3rem/1.15 var(--serif);font-variation-settings:'opsz' 48;letter-spacing:-.01em}
 .sous{font-weight:400;font-size:.88rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .etat{font-size:.66rem;color:var(--muted)}
 .etape.fait .num{color:var(--pink)}
@@ -88,7 +89,7 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .lune-bloc p{margin:0}
 .lune-bloc .mono{margin-bottom:4px}
 .naissance{display:grid;gap:6px;font-size:.92rem;color:var(--muted)}
-.naissance input{font:16px var(--mono);color:var(--ink);background:transparent;border:0;border-bottom:1.5px dashed var(--ink);padding:4px 0;width:100%;max-width:220px;border-radius:0}
+.naissance input{font:16px var(--body);font-variant-numeric:tabular-nums;color:var(--ink);background:transparent;border:0;border-bottom:1.5px dashed var(--ink);padding:4px 0;width:100%;max-width:220px;border-radius:0}
 .naissance.discret{border-top:1.5px solid var(--line);padding-top:14px}
 
 /* 02 · Ressenti (deck V2) */
@@ -100,9 +101,9 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .carte .tache{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;right:-18%;bottom:-16%;filter:blur(8px);opacity:.85;mix-blend-mode:var(--blend);pointer-events:none}
 .carte .lentille{display:flex;justify-content:space-between;gap:8px;position:relative}
 .carte .lentille span:last-child{color:var(--muted)}
-.carte p{margin:0;align-self:center;font:700 clamp(1.5rem,6.8vw,2rem)/1.05 var(--display);letter-spacing:-.02em;text-wrap:balance;position:relative}
+.carte p{margin:0;align-self:center;font:400 clamp(1.5rem,6.8vw,2rem)/1.1 var(--serif);font-variation-settings:'opsz' 96;letter-spacing:-.015em;text-wrap:balance;position:relative}
 .carte .pourquoi{position:relative;font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--muted)}
-.tampon{position:absolute;top:20px;font:800 1.4rem var(--display);letter-spacing:.02em;padding:4px 12px;border:3px solid currentColor;border-radius:8px;opacity:0;pointer-events:none}
+.tampon{position:absolute;top:20px;font:700 1rem var(--body);letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border:3px solid currentColor;border-radius:8px;opacity:0;pointer-events:none}
 .tampon.oui{left:16px;color:var(--pink);transform:rotate(-12deg)}
 .tampon.non{right:16px;color:var(--blue);transform:rotate(10deg)}
 .actions{display:flex;gap:10px;justify-content:center}
@@ -119,7 +120,7 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .rythmes button{flex:1;min-height:44px;padding:8px 6px;font-size:.9rem;background:transparent;color:var(--ink);border:1px solid var(--ink);border-radius:999px;opacity:.6}
 .rythmes button[aria-pressed="true"]{opacity:1;background:var(--ink);color:var(--paper)}
 .rythmes button:disabled{opacity:.35}
-.bulle-texte{position:relative;font:400 1.6rem/1 var(--serif);font-style:italic}
+.bulle-texte{position:relative;font:300 1.6rem/1 var(--serif);font-style:italic}
 /* 03 · Geste : arcane */
 .arcane{display:grid;gap:14px;justify-items:center;text-align:center}
 .carte-tarot{position:relative;width:170px;height:270px;padding:0;border:0;border-radius:14px;perspective:900px;background:none}
@@ -127,8 +128,8 @@ button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .carte-tarot .dos,.carte-tarot .face{position:absolute;inset:0;border-radius:14px;border:1.5px solid var(--ink);backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform 700ms var(--ease)}
 .carte-tarot .dos{background:repeating-linear-gradient(45deg,var(--ink) 0 2px,transparent 2px 10px),var(--card)}
 .carte-tarot .face{background:var(--card);transform:rotateY(180deg);display:grid;align-content:center;justify-items:center;gap:10px;padding:16px}
-.carte-tarot .face b{font:800 1.5rem/1.05 var(--display);text-wrap:balance}
-.carte-tarot .face em{font:italic 1.2rem var(--serif);color:var(--pink)}
+.carte-tarot .face b{font:400 1.6rem/1.05 var(--serif);font-variation-settings:'opsz' 72;text-wrap:balance}
+.carte-tarot .face em{font:italic 300 1.2rem var(--serif);color:var(--pink)}
 .carte-tarot.retournee .dos{transform:rotateY(-180deg)}
 .carte-tarot.retournee .face{transform:rotateY(0)}
 .arcane-texte{display:grid;gap:10px}
@@ -139,9 +140,9 @@ textarea{font:16px/1.4 var(--body);color:var(--ink);background:transparent;borde
 
 /* Numérologie : jour personnel */
 .nombre{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;border-top:1.5px solid var(--line);padding-top:12px}
-.nombre .chiffre{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font:800 1.6rem var(--display);color:var(--pink)}
+.nombre .chiffre{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font:400 1.8rem var(--serif);font-variant-numeric:lining-nums;color:var(--pink)}
 .nombre div{display:grid;gap:1px}
-.nombre b{font:700 1.05rem var(--display)}
+.nombre b{font:600 1.05rem var(--body)}
 .nombre p{margin:0;font-size:.92rem;color:var(--muted)}
 /* Garde-fous */
 .note{margin:0;font-size:.85rem;color:var(--muted);padding:10px 12px;border-left:3px solid var(--yellow);background:var(--paper);border-radius:0 10px 10px 0}
@@ -151,12 +152,12 @@ textarea{font:16px/1.4 var(--body);color:var(--ink);background:transparent;borde
 /* La Lune au quotidien */
 .quotidien{display:grid;gap:10px;padding:16px;border:1.5px solid var(--line);border-radius:20px;background:var(--verre);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 .quotidien dl{margin:0;display:grid;gap:10px}
-.quotidien dt{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.quotidien dt{font-family:var(--body);font-weight:600;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .quotidien dd{margin:2px 0 0;font-size:.95rem}
-.quotidien dd b{font-family:var(--display)}
+.quotidien dd b{font-weight:600}
 /* Cycle lunaire : intention et bilan */
 .cycle{display:grid;gap:8px;padding:14px;border:1.5px dashed var(--line);border-radius:16px}
-.cycle-texte{margin:0;font:italic 1.2rem/1.25 var(--serif)}
+.cycle-texte{margin:0;font:italic 300 1.2rem/1.3 var(--serif)}
 .cycle div{display:grid;gap:8px}
 .journal-cycles{display:grid;gap:10px}
 .journal-cycles .cycle{border-style:solid}
@@ -168,8 +169,8 @@ textarea{font:16px/1.4 var(--body);color:var(--ink);background:transparent;borde
 .poster canvas{display:block;width:100%;aspect-ratio:1;max-width:100%}
 .poster .meta{position:absolute;inset:14px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
 .poster .rangee{display:flex;justify-content:space-between;gap:8px}
-.mots{font:400 clamp(2rem,10vw,3rem)/.95 var(--serif);font-style:italic;letter-spacing:-.01em}
-.mantra{font:400 1.5rem/1.2 var(--serif);font-style:italic;margin:0;text-wrap:balance}
+.mots{font:300 clamp(2rem,10vw,3rem)/1 var(--serif);font-variation-settings:'opsz' 144;font-style:italic;letter-spacing:-.01em}
+.mantra{font:300 1.5rem/1.25 var(--serif);font-style:italic;margin:0;text-wrap:balance}
 .rintention{margin:0;padding-left:12px;border-left:3px solid var(--pink);font-size:1rem}
 .boutons{display:flex;gap:10px;flex-wrap:wrap}
 .boutons button{flex:1;min-width:150px}
@@ -179,22 +180,22 @@ textarea{font:16px/1.4 var(--body);color:var(--ink);background:transparent;borde
 .titre-vue{display:grid;gap:4px}
 .titre-vue .riso{font-size:clamp(2.2rem,10vw,2.8rem)}
 .mix{display:grid;gap:6px}
-.barre{display:grid;grid-template-columns:62px 1fr 38px;gap:8px;align-items:center;font-family:var(--mono);font-size:.72rem}
+.barre{display:grid;grid-template-columns:62px 1fr 38px;gap:8px;align-items:center;font-family:var(--body);font-size:.72rem;font-variant-numeric:tabular-nums}
 .barre .piste{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
 .barre .rempli{height:100%;border-radius:5px;transform-origin:left;transition:transform 500ms var(--ease)}
 .barre span:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .faits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .info{border-top:1.5px solid var(--ink);padding-top:8px;display:grid;gap:2px;min-width:0}
-.info b{font:700 1.08rem/1.15 var(--display)}
+.info b{font:400 1.2rem/1.15 var(--serif);font-variation-settings:'opsz' 36}
 .bloc{display:grid;gap:10px;padding-top:6px}
 .bloc-tete{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.bloc-tete b{font:700 1.15rem var(--display)}
+.bloc-tete b{font:400 1.3rem var(--serif);font-variation-settings:'opsz' 48}
 .frise{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .jour-tuile{display:grid;gap:4px;justify-items:center;min-width:0}
 .jour-tuile canvas,.jour-tuile .vide-rond{width:100%;aspect-ratio:1;border-radius:50%;display:block}
 .jour-tuile canvas{border:1.5px solid var(--ink)}
 .jour-tuile .vide-rond{border:1.5px dashed var(--line)}
-.jour-tuile span{font-family:var(--mono);font-size:.62rem;color:var(--muted);text-transform:uppercase}
+.jour-tuile span{font-family:var(--body);font-weight:600;letter-spacing:.06em;font-size:.6rem;color:var(--muted);text-transform:uppercase}
 .jour-tuile.ajd span{color:var(--pink);font-weight:700}
 .lunaison{display:flex;flex-wrap:wrap;gap:5px}
 .lunaison i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:block}
@@ -209,7 +210,7 @@ textarea{font:16px/1.4 var(--body);color:var(--ink);background:transparent;borde
 .entree{display:grid;grid-template-columns:56px 1fr;gap:14px;padding:14px 0;border-top:1.5px solid var(--line)}
 .entree canvas{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);display:block}
 .entree .infos{display:grid;gap:3px;min-width:0}
-.entree .mots-courts{font:italic 1.15rem/1.1 var(--serif)}
+.entree .mots-courts{font:italic 300 1.15rem/1.15 var(--serif)}
 .entree p{margin:0;font-size:.95rem}
 .vide{margin:0;padding:18px;border:1.5px dashed var(--line);border-radius:16px}
 
@@ -251,7 +252,7 @@ footer{margin-top:28px;font-size:.78rem;color:var(--muted);border-top:1.5px soli
 @keyframes tuto-entre-c{from{opacity:0;transform:translateY(calc(-50% + 6px)) scale(.98)}}
 .tuto-haut{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tuto-haut .lien{padding:4px 0;font-size:.88rem}
-.tuto-bulle b{font:700 1.3rem/1.15 var(--display)}
+.tuto-bulle b{font:400 1.45rem/1.15 var(--serif);font-variation-settings:'opsz' 72;letter-spacing:-.01em}
 .tuto.centre .tuto-bulle b{font-size:1.7rem}
 .tuto-bulle p{margin:0;font-size:.98rem;line-height:1.45;text-wrap:pretty}
 .tuto-bas{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
@@ -266,14 +267,9 @@ html.tuto-ouvert body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.tuto,.tuto-trou,.tuto-bulle{transition:none}.tuto-bulle.entre,.tuto.centre .tuto-bulle.entre{animation:none}}
 .revoir-tuto{display:block;margin:24px auto 0;font-size:.85rem}
 
-/* ---------- Brume d'aube : fond fixe de nuages flous qui dérivent ---------- */
-.brume{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--fond)}
-.brume i{position:absolute;width:75vmax;height:75vmax;border-radius:50%;filter:blur(70px);opacity:.36;will-change:transform}
-.brume i:nth-child(1){left:-25vmax;top:-20vmax;background:var(--dominante);animation:derive1 46s ease-in-out infinite alternate}
-.brume i:nth-child(2){right:-30vmax;top:15vh;background:var(--pink);opacity:.3;animation:derive2 58s ease-in-out infinite alternate}
-.brume i:nth-child(3){left:-20vmax;bottom:-25vmax;background:var(--blue);opacity:.28;animation:derive3 52s ease-in-out infinite alternate}
-.brume i:nth-child(4){right:-15vmax;bottom:-30vmax;background:var(--yellow);opacity:.24;animation:derive1 64s ease-in-out infinite alternate-reverse}
-@keyframes derive1{to{transform:translate3d(18vmax,12vmax,0) scale(1.15)}}
-@keyframes derive2{to{transform:translate3d(-20vmax,-8vmax,0) scale(.9)}}
-@keyframes derive3{to{transform:translate3d(14vmax,-14vmax,0) scale(1.1)}}
-@media (prefers-reduced-motion:reduce){.brume i{animation:none}}
+/* ---------- Ciel vivant : fond fixe dessiné dans app.js (dessinerCiel) ---------- */
+.ciel-fond{position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--fond);overflow:hidden}
+.ciel-fond canvas{position:absolute;top:0;left:0;width:100vw;height:max(100vh,100lvh)}
+#scintille i{position:absolute;width:2px;height:2px;border-radius:50%;background:#f4f1ff;box-shadow:0 0 6px 1px rgba(244,241,255,.7);opacity:.2;animation:scintille 6s ease-in-out infinite}
+@keyframes scintille{50%{opacity:.95;transform:scale(1.4)}}
+@media (prefers-reduced-motion:reduce){#scintille i{animation:none;opacity:.6}}

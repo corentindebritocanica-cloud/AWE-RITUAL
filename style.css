@@ -4,9 +4,9 @@
 :root{
   --fond:#f4f1ea; --surface:#fffdf8; --texte:#1b1733; --discret:#5e5a73; --ligne:rgba(27,23,51,.12);
   --or:#f2c46d; --or-texte:#8a5d10; --sur-or:#1a1430; --erreur:#b3261e;
-  --display:"Cormorant Garamond","Cormorant",Georgia,serif;
-  --corps:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --corps:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",sans-serif;
+  --mono:var(--corps);
   --sortie:cubic-bezier(.23,1,.32,1);
   color-scheme:light;
 }
