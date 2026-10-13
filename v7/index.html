@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr" class="verrou">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rituel · AWE Ritual</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AWE Ritual">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eceaf1">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#15172a">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../icones/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../icones/icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Instrument+Serif:ital@0;1&amp;family=Instrument+Sans:wght@400;500;600&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="style.css?v=202610121815070200">
+<!-- Contenu masqué tant que le compte admin n'est pas confirmé (commun.js → AWE.garder) -->
+<style>html.verrou body{visibility:hidden}</style>
+<script>window.DERNIERE_MAJ = '2026-10-12T18:15:07+02:00';</script>
+</head>
+<body>
+<header class="tete">
+  <a class="retour mono" href="../" aria-label="Retour au menu">‹ Menu</a>
+  <span class="mono muted" id="date"></span>
+  <button type="button" class="son" id="son" aria-pressed="true" aria-label="Son du bol">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4z"/><path class="ondes" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+  </button>
+</header>
+
+<main>
+  <!-- ========== Aujourd'hui ========== -->
+  <section class="vue" id="vAujourdhui" aria-labelledby="oAujourdhui">
+    <div class="hero">
+      <div class="aura-vive" aria-hidden="true"><canvas id="auraVive" width="320" height="320"></canvas></div>
+      <div class="hero-texte">
+        <h1 class="riso" data-t="Who am I?">Who am I?</h1>
+        <p class="ciel-ligne mono" id="cielLigne"></p>
+      </div>
+    </div>
+    <p class="evenement" id="evenement" hidden></p>
+
+    <div class="progression" aria-live="polite">
+      <div class="segments" id="segments" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <span class="mono muted" id="progTexte"></span>
+    </div>
+
+    <ol class="etapes" id="etapes">
+      <!-- 1 · Ciel -->
+      <li class="etape" data-e="ciel">
+        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cCiel">
+          <span class="num mono">01</span>
+          <span class="titres"><b>Ciel</b><span class="sous" id="sCiel">Ce que dit le ciel aujourd'hui</span></span>
+          <span class="etat mono"></span>
+        </button>
+        <div class="corps" id="cCiel" hidden>
+          <div class="lune-bloc">
+            <svg class="lune" id="lune" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
+            <div>
+              <p class="mono muted" id="luneNom"></p>
+              <p class="phrase" id="phrase"></p>
+            </div>
+          </div>
+          <label class="naissance" id="naissanceBloc" for="naissance">Pour personnaliser ton aura, ta date de naissance
+            <input id="naissance" type="date" max="2026-12-31">
+          </label>
+          <button type="button" class="principal" id="okCiel">Je reçois le ciel du jour</button>
+        </div>
+      </li>
+
+      <!-- 2 · Ressenti -->
+      <li class="etape" data-e="ressenti">
+        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cRessenti">
+          <span class="num mono">02</span>
+          <span class="titres"><b>Ressenti</b><span class="sous">Sept cartes, sept réponses</span></span>
+          <span class="etat mono"></span>
+        </button>
+        <div class="corps" id="cRessenti" hidden>
+          <div class="points" id="points" aria-hidden="true"></div>
+          <div class="deck" id="deck" aria-live="polite"></div>
+          <div class="actions">
+            <button type="button" id="nonBtn">Pas moi</button>
+            <button type="button" id="ouiBtn" class="oui">C'est moi</button>
+          </div>
+          <p class="muted aide">Glisse à droite si ça te ressemble aujourd'hui, à gauche sinon.</p>
+        </div>
+      </li>
+
+      <!-- 3 · Geste -->
+      <li class="etape" data-e="geste">
+        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cGeste">
+          <span class="num mono">03</span>
+          <span class="titres"><b>Geste</b><span class="sous" id="sGeste">Une minute pour toi</span></span>
+          <span class="etat mono"></span>
+        </button>
+        <div class="corps" id="cGeste" hidden>
+          <!-- Souffle -->
+          <div class="souffle" id="souffle">
+            <p class="muted" id="souffleIntro">Six respirations lentes, cinq secondes pour inspirer, cinq pour expirer.</p>
+            <div class="bulle-zone">
+              <div class="bulle" id="bulle"></div>
+              <span class="bulle-texte" id="bulleTexte" aria-live="polite">Prêt·e&nbsp;?</span>
+            </div>
+            <button type="button" class="principal" id="souffleBtn">Commencer · 1 min</button>
+          </div>
+          <!-- Arcane -->
+          <div class="arcane" id="arcane" hidden>
+            <button type="button" class="carte-tarot" id="carteTarot" aria-label="Retourner l'arcane du jour">
+              <span class="dos" aria-hidden="true"></span>
+              <span class="face">
+                <span class="mono" id="aNum"></span>
+                <b id="aNom"></b>
+                <em id="aMot"></em>
+              </span>
+            </button>
+            <div class="arcane-texte" id="arcaneTexte" hidden>
+              <p class="phrase" id="aMessage"></p>
+              <p class="geste-du-jour"><span class="mono muted">Geste</span><span id="aGeste"></span></p>
+            </div>
+            <p class="muted aide" id="arcaneAide">Touche la carte pour la retourner.</p>
+          </div>
+          <button type="button" class="lien" id="changerGeste"></button>
+          <button type="button" class="principal" id="suiteGeste" hidden>Continuer vers l'intention</button>
+        </div>
+      </li>
+
+      <!-- 4 · Intention -->
+      <li class="etape" data-e="intention">
+        <button type="button" class="etape-tete" aria-expanded="false" aria-controls="cIntention">
+          <span class="num mono">04</span>
+          <span class="titres"><b>Intention</b><span class="sous">Une ligne pour ta journée</span></span>
+          <span class="etat mono"></span>
+        </button>
+        <div class="corps" id="cIntention" hidden>
+          <label class="mono muted" for="intention">Aujourd'hui, je choisis de…</label>
+          <textarea id="intention" rows="2" maxlength="140" enterkeyhint="done"></textarea>
+          <button type="button" class="principal" id="okIntention">Poser mon intention</button>
+        </div>
+      </li>
+    </ol>
+
+    <!-- Révélation : apparaît quand les 4 étapes sont faites -->
+    <div class="revelation" id="revelation" hidden>
+      <span class="mono muted">Ton aura du jour est révélée</span>
+      <div class="poster">
+        <canvas id="auraFinale" width="900" height="900" aria-label="Ton aura du jour"></canvas>
+        <div class="meta">
+          <div class="rangee mono"><span>Who am I?</span><span id="rDate"></span></div>
+          <div><span class="mono">Aujourd'hui tu es</span><div class="mots" id="rMots"></div></div>
+        </div>
+      </div>
+      <p class="mantra" id="rMantra"></p>
+      <p class="rintention" id="rIntention"></p>
+      <div class="boutons">
+        <button type="button" class="principal" id="partager">Partager mon aura</button>
+        <button type="button" id="versAura">Voir mon évolution</button>
+      </div>
+      <span class="toastline" id="toast" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <!-- ========== Mon aura ========== -->
+  <section class="vue" id="vAura" aria-labelledby="oAura" hidden>
+    <div class="titre-vue">
+      <span class="mono muted">Mon aura</span>
+      <h2 class="riso" data-t="Aujourd'hui">Aujourd'hui</h2>
+    </div>
+    <div class="poster petit">
+      <canvas id="auraJour" width="900" height="900" aria-label="Ton aura du jour"></canvas>
+      <div class="meta">
+        <div class="rangee mono"><span id="aEtat"></span><span id="aDate"></span></div>
+        <div class="mots" id="aMots"></div>
+      </div>
+    </div>
+    <p class="mantra" id="aMantra"></p>
+    <div class="mix" id="mix"></div>
+    <div class="faits">
+      <div class="info"><span class="mono muted">Élément dominant</span><b id="fEl"></b></div>
+      <div class="info"><span class="mono muted">Posture</span><b id="fYoga"></b></div>
+      <div class="info"><span class="mono muted">Lune</span><b id="fLune"></b></div>
+      <div class="info"><span class="mono muted">Soleil natal</span><b id="fSoleil"></b></div>
+    </div>
+
+    <div class="bloc">
+      <div class="bloc-tete"><b>Mes 7 derniers jours</b><span class="mono muted" id="septCompte"></span></div>
+      <div class="frise" id="frise"></div>
+    </div>
+
+    <div class="bloc">
+      <div class="bloc-tete"><b>Ma lunaison</b><span class="mono muted" id="lunaisonTexte"></span></div>
+      <div class="lunaison" id="lunaison"></div>
+      <p class="muted petit-texte" id="lunaisonAide"></p>
+    </div>
+
+    <label class="naissance discret" for="naissance2">Date de naissance
+      <input id="naissance2" type="date">
+    </label>
+  </section>
+
+  <!-- ========== Journal ========== -->
+  <section class="vue" id="vJournal" aria-labelledby="oJournal" hidden>
+    <div class="titre-vue">
+      <span class="mono muted">Journal</span>
+      <h2 class="riso" data-t="Mes intentions">Mes intentions</h2>
+    </div>
+    <ol class="journal" id="journal"></ol>
+    <p class="vide muted" id="journalVide" hidden>Ton journal se remplira jour après jour. Termine ton premier rituel pour y voir ta première aura.</p>
+  </section>
+
+  <footer>Who am I? · pour l'introspection et le plaisir, pas une prédiction ni un avis médical. Tes réponses restent sur cet appareil.</footer>
+</main>
+
+<nav class="onglets" role="tablist" aria-label="Sections">
+  <button type="button" role="tab" id="oAujourdhui" aria-controls="vAujourdhui" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>
+    Aujourd'hui
+  </button>
+  <button type="button" role="tab" id="oAura" aria-controls="vAura" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/></svg>
+    Mon aura
+  </button>
+  <button type="button" role="tab" id="oJournal" aria-controls="vJournal" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h10.5a2 2 0 0 1 2 2v15H8a2 2 0 0 1-2-2z"/><path d="M6 18.5a2 2 0 0 1 2-2h10.5M10 8h5M10 11.5h5"/></svg>
+    Journal
+  </button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script src="../commun.js?v=202610121815070200"></script>
+<script>AWE.garder('../');AWE.enregistrerSW('../');AWE.verifierVersion();</script>
+<script src="../ciel.js?v=202610121815070200"></script>
+<script src="app.js?v=202610121815070200"></script>
+</body>
+</html>

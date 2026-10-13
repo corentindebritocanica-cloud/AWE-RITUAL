@@ -10,7 +10,7 @@ PWA française de rituel quotidien (spiritualité & bien-être : ciel du jour, L
 
 | Chemin | Rôle |
 | --- | --- |
-| `index.html`, `style.css`, `app.js` | Accueil : connexion e-mail / mot de passe, puis menu des prototypes V1 à V6 |
+| `index.html`, `style.css`, `app.js` | Accueil : connexion e-mail / mot de passe, puis menu des prototypes V1 à V7 |
 | `commun.js` | Noyau commun : init Firebase, garde admin, service worker, vérification de version |
 | `v1/` | Prototype V1 **Constellation** (nuit, canvas, navigation par gestes) |
 | `v2/` | Prototype V2 **Aura** (fanzine riso de jour, cartes « c'est moi / pas moi ») |
@@ -18,8 +18,9 @@ PWA française de rituel quotidien (spiritualité & bien-être : ciel du jour, L
 | `v4/` | Prototype V4 **Oracle** (bougie à allumer, question, tirage d'une carte parmi 22 arcanes, journal) |
 | `v5/` | Prototype V5 **Chakras** (scan des 7 centres, centre à soigner, méditation guidée de l'alignement) |
 | `v6/` | Prototype V6 **Mala** (japa : mantra du jour, 27/54/108 perles égrenées au doigt) |
-| `ciel.js` | Ciel du jour partagé par V3 à V6 (Lune, signe, arcane, chakra, aléa par date, stockage local, son du bol en Web Audio) |
-| `sw.js` | Service worker unique, portée racine (accueil + V1 à V6 = une seule app installée) |
+| `v7/` | Prototype V7 **Aura, le rituel** (direction retenue) : rituel du jour en 4 étapes (ciel → ressenti → geste → intention) qui colore une aura vivante ; onglets Aujourd'hui / Mon aura (frise 7 jours, lunaison) / Journal. Astronomie via astronomy-engine (MIT, CDN jsDelivr), repli sur le modèle simplifié hors ligne |
+| `ciel.js` | Ciel du jour partagé par V3 à V7 (Lune, signe, arcane, chakra, aléa par date, stockage local, son du bol en Web Audio ; V7 n'en utilise que le stockage, l'aléa et le son) |
+| `sw.js` | Service worker unique, portée racine (accueil + V1 à V7 = une seule app installée) |
 | `manifest.json`, `icones/` | Manifeste PWA et icônes (dont `apple-touch-icon.png` 180×180) |
 | `firestore.rules` | Règles Firestore versionnées, **jamais déployées automatiquement** |
 | `.github/workflows/auto-version.yml` | Met à jour `DERNIERE_MAJ`, les URLs `?v=` et `CACHE_NAME` à chaque push |
@@ -32,7 +33,7 @@ HTML + CSS + JS pur, sans framework ni build.
 
 - Firebase Authentication, fournisseur **e-mail / mot de passe**, SDK compat 10.12.2 (gstatic).
 - Persistance `LOCAL` : un appareil connecté une fois le reste (pas d'expiration côté app).
-- Sur iPhone, chaque icône installée a son propre stockage : il faut se connecter une fois par icône installée, pas une fois par page. Accueil et prototypes V1 à V6 partagent la même session (même origine, même app installée).
+- Sur iPhone, chaque icône installée a son propre stockage : il faut se connecter une fois par icône installée, pas une fois par page. Accueil et prototypes V1 à V7 partagent la même session (même origine, même app installée).
 - **Rôles** : claim personnalisé `admin: true` posé sur le compte via l'API Admin (Identity Toolkit). Pas de compte utilisateur classique pour l'instant (prévu plus tard : claim absent = utilisateur).
 - Un compte sans claim admin est déconnecté avec le message « Accès réservé à l'admin pour l'instant ».
 - Pas d'inscription dans l'app : les comptes se créent dans la console Firebase.
@@ -40,7 +41,7 @@ HTML + CSS + JS pur, sans framework ni build.
 
 ## Données
 
-- **Prototypes** : V1 à V6 stockent encore tout dans `localStorage` (`wai-constellation`, `aura-birth`, `aura-answers`, `mandala-jour`, `oracle-tirages`, `chakras-scan`, `mala-japa`, `awe-son`). Aucune collection Firestore utilisée.
+- **Prototypes** : V1 à V7 stockent encore tout dans `localStorage` (`aura7` pour V7 : date de naissance + un instantané par jour, étapes, réponses, intention, scores ; `wai-constellation`, `aura-birth`, `aura-answers`, `mandala-jour`, `oracle-tirages`, `chakras-scan`, `mala-japa`, `awe-son`). Aucune collection Firestore utilisée.
 - **Firestore** : base `(default)`, région `eur3`. Règles publiées actuellement : tout refusé. Règles du dépôt : lecture / écriture réservées au claim admin. À publier via la console après test dans le simulateur.
 
 ## PWA / iOS
@@ -69,7 +70,7 @@ Règles appliquées (référence : [GUIDE_PWA_IOS.md de PORTAIL-DUO](https://git
 
 ## Feuille de route
 
-- Choisir la direction (un prototype ou une fusion, par ex. un rituel qui enchaîne plusieurs pratiques), puis migrer les données locales vers Firestore (`users/{uid}/...`).
+- Direction retenue : **V7 Aura, le rituel** (fusion de V2 avec le souffle de V3 et l'arcane de V4). Prochaine étape : migrer les données locales vers Firestore (`users/{uid}/...`).
 - Accès utilisateur classique en plus de l'admin.
 - Admin : à définir (contenus du jour, statistiques…).
 - Plus tard : prise de rendez-vous avec des praticiens (yoga, tissus aériens).

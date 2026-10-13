@@ -1,0 +1,203 @@
+/* V7 · Rituel Aura — un rituel du jour en quatre étapes (ciel → ressenti → geste → intention)
+   qui colore une aura vivante. Trois onglets en bas : Aujourd'hui, Mon aura, Journal.
+   Encres riso de V2, papier froid, une colonne étroite pensée pour l'iPhone. */
+:root{
+  --paper:#eceaf1; --card:#f8f7fb; --ink:#1f2a7a; --muted:#5b6290; --line:rgba(31,42,122,.2);
+  --pink:#ff4fa3; --blue:#0a78c2; --yellow:#ffd400; --green:#00a565; --blend:multiply;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --serif:"Instrument Serif",Georgia,serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Space Mono",ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.23,1,.32,1);
+  --barre:64px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15172a;--card:#1d2038;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#15172a;--card:#1d2038;--ink:#eceaf6;--muted:#a3a6c8;--line:rgba(236,234,246,.16);--pink:#ff6fb8;--blue:#47a6ff;--yellow:#ffe14d;--green:#2fd38a;--blend:screen;color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--paper);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--body);margin:0;overflow-x:hidden;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + var(--barre) + 28px) calc(env(safe-area-inset-left,0px) + 16px)}
+main{max-width:480px;margin:0 auto}
+.vue{display:grid;gap:18px}
+button{font:600 .95rem var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:999px;padding:12px 20px;cursor:pointer;transition:transform 160ms var(--ease);touch-action:manipulation}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2.5px solid var(--pink);outline-offset:3px}
+button,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.principal{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.lien{border:0;padding:6px 0;text-decoration:underline;text-underline-offset:3px;font-weight:500;color:var(--muted);justify-self:start}
+.mono{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.muted{color:var(--muted)}
+.aide{margin:0;font-size:.85rem;text-align:center}
+.phrase{margin:0;font:400 1.35rem/1.25 var(--serif);font-style:italic;text-wrap:pretty}
+
+/* ---------- En-tête ---------- */
+.tete{max-width:480px;margin:0 auto 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.retour{color:var(--muted);text-decoration:none;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;transition:transform 160ms var(--ease)}
+.retour:active{transform:scale(.97)}
+.son{width:40px;height:40px;padding:0;display:grid;place-items:center;border-color:var(--line)}
+.son svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.son[aria-pressed="false"] .ondes{opacity:0}
+
+/* ---------- Hero : aura vivante + titre ---------- */
+.hero{display:grid;grid-template-columns:108px 1fr;gap:16px;align-items:center}
+.aura-vive{width:108px;aspect-ratio:1;border-radius:50%;overflow:hidden;border:1.5px solid var(--ink);animation:respire 6s ease-in-out infinite}
+.aura-vive canvas{width:100%;height:100%;display:block}
+@keyframes respire{50%{transform:scale(1.035)}}
+.riso{position:relative;margin:0;font:800 clamp(2.4rem,11vw,3.2rem)/.88 var(--display);letter-spacing:-.035em;color:var(--blue);text-wrap:balance}
+.riso::after{content:attr(data-t);position:absolute;inset:0;transform:translate(3px,2px);color:var(--pink);mix-blend-mode:var(--blend);pointer-events:none}
+.hero-texte{display:grid;gap:8px;min-width:0}
+.ciel-ligne{margin:0;color:var(--muted);line-height:1.6;text-transform:none;letter-spacing:.02em}
+.ciel-ligne b{color:var(--ink)}
+.evenement{margin:0;padding:10px 14px;border:1.5px dashed var(--pink);border-radius:14px;font-size:.92rem}
+.evenement b{color:var(--pink)}
+
+/* ---------- Progression ---------- */
+.progression{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.segments{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.segments i{height:5px;border-radius:3px;background:var(--line);transition:background 300ms ease-out}
+.segments i.on{background:var(--ink)}
+
+/* ---------- Étapes ---------- */
+.etapes{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.etape{background:var(--card);border:1.5px solid var(--line);border-radius:20px;overflow:hidden}
+.etape.courant{border-color:var(--ink)}
+.etape-tete{width:100%;border:0;border-radius:0;padding:14px 16px;display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;text-align:left}
+.etape-tete:active{transform:none;background:var(--line)}
+.etape-tete .num{color:var(--muted)}
+.titres{display:grid;gap:1px;min-width:0}
+.titres b{font:700 1.15rem/1.15 var(--display)}
+.sous{font-weight:400;font-size:.88rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.etat{font-size:.66rem;color:var(--muted)}
+.etape.fait .num{color:var(--pink)}
+.etape.fait .etat{color:var(--pink)}
+.etape.verrou .etape-tete{opacity:.5;cursor:default}
+.corps{padding:4px 16px 18px;display:grid;gap:14px}
+
+/* 01 · Ciel */
+.lune-bloc{display:grid;grid-template-columns:84px 1fr;gap:14px;align-items:center}
+.lune{width:84px;height:84px;display:block}
+.lune .ombre{fill:var(--line)}
+.lune .clair{fill:var(--yellow)}
+.lune .bord{fill:none;stroke:var(--ink);stroke-width:1.5}
+.lune-bloc p{margin:0}
+.lune-bloc .mono{margin-bottom:4px}
+.naissance{display:grid;gap:6px;font-size:.92rem;color:var(--muted)}
+.naissance input{font:16px var(--mono);color:var(--ink);background:transparent;border:0;border-bottom:1.5px dashed var(--ink);padding:4px 0;width:100%;max-width:220px;border-radius:0}
+.naissance.discret{border-top:1.5px solid var(--line);padding-top:14px}
+
+/* 02 · Ressenti (deck V2) */
+.points{display:flex;gap:4px}
+.points i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.points i.on{background:var(--ink)}
+.deck{position:relative;height:min(52vh,360px);touch-action:none}
+.carte{position:absolute;inset:0;background:var(--paper);border:1.5px solid var(--ink);border-radius:18px;padding:18px;display:grid;grid-template-rows:auto 1fr auto;gap:10px;overflow:hidden;cursor:grab;user-select:none;-webkit-user-select:none;transition:transform 300ms var(--ease),opacity 300ms ease-out;will-change:transform}
+.carte .tache{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;right:-18%;bottom:-16%;filter:blur(8px);opacity:.85;mix-blend-mode:var(--blend);pointer-events:none}
+.carte .lentille{display:flex;justify-content:space-between;gap:8px;position:relative}
+.carte .lentille span:last-child{color:var(--muted)}
+.carte p{margin:0;align-self:center;font:700 clamp(1.5rem,6.8vw,2rem)/1.05 var(--display);letter-spacing:-.02em;text-wrap:balance;position:relative}
+.carte .pourquoi{position:relative;font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--muted)}
+.tampon{position:absolute;top:20px;font:800 1.4rem var(--display);letter-spacing:.02em;padding:4px 12px;border:3px solid currentColor;border-radius:8px;opacity:0;pointer-events:none}
+.tampon.oui{left:16px;color:var(--pink);transform:rotate(-12deg)}
+.tampon.non{right:16px;color:var(--blue);transform:rotate(10deg)}
+.actions{display:flex;gap:10px;justify-content:center}
+.actions button{flex:1;max-width:200px}
+.actions .oui{background:var(--pink);border-color:var(--pink);color:#fff}
+
+/* 03 · Geste : souffle */
+.souffle{display:grid;gap:14px;justify-items:center;text-align:center}
+.souffle p{margin:0}
+.bulle-zone{position:relative;width:220px;height:220px;display:grid;place-items:center}
+.bulle{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 50%,var(--souffle,var(--blue)) 0%,transparent 70%);opacity:.75;mix-blend-mode:var(--blend);transform:scale(.55);transition:transform 5s cubic-bezier(.45,0,.55,1)}
+.bulle.inspire{transform:scale(1)}
+.bulle-texte{position:relative;font:400 1.6rem/1 var(--serif);font-style:italic}
+/* 03 · Geste : arcane */
+.arcane{display:grid;gap:14px;justify-items:center;text-align:center}
+.carte-tarot{position:relative;width:170px;height:270px;padding:0;border:0;border-radius:14px;perspective:900px;background:none}
+.carte-tarot:active{transform:scale(.98)}
+.carte-tarot .dos,.carte-tarot .face{position:absolute;inset:0;border-radius:14px;border:1.5px solid var(--ink);backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform 700ms var(--ease)}
+.carte-tarot .dos{background:repeating-linear-gradient(45deg,var(--ink) 0 2px,transparent 2px 10px),var(--card)}
+.carte-tarot .face{background:var(--card);transform:rotateY(180deg);display:grid;align-content:center;justify-items:center;gap:10px;padding:16px}
+.carte-tarot .face b{font:800 1.5rem/1.05 var(--display);text-wrap:balance}
+.carte-tarot .face em{font:italic 1.2rem var(--serif);color:var(--pink)}
+.carte-tarot.retournee .dos{transform:rotateY(-180deg)}
+.carte-tarot.retournee .face{transform:rotateY(0)}
+.arcane-texte{display:grid;gap:10px}
+.geste-du-jour{margin:0;display:grid;gap:2px;font-size:.95rem}
+
+/* 04 · Intention */
+textarea{font:16px/1.4 var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:14px;padding:12px;resize:none;width:100%}
+
+/* ---------- Révélation & posters ---------- */
+.revelation{display:grid;gap:14px;padding-top:6px;animation:monte 600ms var(--ease) both}
+@keyframes monte{from{opacity:0;transform:translateY(12px)}}
+.poster{position:relative;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:var(--card)}
+.poster canvas{display:block;width:100%;aspect-ratio:1;max-width:100%}
+.poster .meta{position:absolute;inset:14px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.poster .rangee{display:flex;justify-content:space-between;gap:8px}
+.mots{font:400 clamp(2rem,10vw,3rem)/.95 var(--serif);font-style:italic;letter-spacing:-.01em}
+.mantra{font:400 1.5rem/1.2 var(--serif);font-style:italic;margin:0;text-wrap:balance}
+.rintention{margin:0;padding-left:12px;border-left:3px solid var(--pink);font-size:1rem}
+.boutons{display:flex;gap:10px;flex-wrap:wrap}
+.boutons button{flex:1;min-width:150px}
+.toastline{min-height:1.4em;font-size:.9rem;color:var(--muted)}
+
+/* ---------- Mon aura ---------- */
+.titre-vue{display:grid;gap:4px}
+.titre-vue .riso{font-size:clamp(2.2rem,10vw,2.8rem)}
+.mix{display:grid;gap:6px}
+.barre{display:grid;grid-template-columns:62px 1fr 38px;gap:8px;align-items:center;font-family:var(--mono);font-size:.72rem}
+.barre .piste{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.barre .rempli{height:100%;border-radius:5px;transform-origin:left;transition:transform 500ms var(--ease)}
+.barre span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.faits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.info{border-top:1.5px solid var(--ink);padding-top:8px;display:grid;gap:2px;min-width:0}
+.info b{font:700 1.08rem/1.15 var(--display)}
+.bloc{display:grid;gap:10px;padding-top:6px}
+.bloc-tete{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.bloc-tete b{font:700 1.15rem var(--display)}
+.frise{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.jour-tuile{display:grid;gap:4px;justify-items:center;min-width:0}
+.jour-tuile canvas,.jour-tuile .vide-rond{width:100%;aspect-ratio:1;border-radius:50%;display:block}
+.jour-tuile canvas{border:1.5px solid var(--ink)}
+.jour-tuile .vide-rond{border:1.5px dashed var(--line)}
+.jour-tuile span{font-family:var(--mono);font-size:.62rem;color:var(--muted);text-transform:uppercase}
+.jour-tuile.ajd span{color:var(--pink);font-weight:700}
+.lunaison{display:flex;flex-wrap:wrap;gap:5px}
+.lunaison i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:block}
+.lunaison i.fait{border-color:transparent}
+.lunaison i.ajd{outline:2px solid var(--pink);outline-offset:2px}
+.lunaison i.pleine{border-color:var(--yellow);border-width:2.5px}
+.lunaison i.futur{opacity:.45}
+.petit-texte{margin:0;font-size:.85rem}
+
+/* ---------- Journal ---------- */
+.journal{list-style:none;margin:0;padding:0;display:grid}
+.entree{display:grid;grid-template-columns:56px 1fr;gap:14px;padding:14px 0;border-top:1.5px solid var(--line)}
+.entree canvas{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);display:block}
+.entree .infos{display:grid;gap:3px;min-width:0}
+.entree .mots-courts{font:italic 1.15rem/1.1 var(--serif)}
+.entree p{margin:0;font-size:.95rem}
+.vide{margin:0;padding:18px;border:1.5px dashed var(--line);border-radius:16px}
+
+footer{margin-top:28px;font-size:.78rem;color:var(--muted);border-top:1.5px solid var(--line);padding-top:12px}
+
+/* ---------- Onglets bas ---------- */
+.onglets{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);
+  padding:6px calc(env(safe-area-inset-right,0px) + 8px) calc(env(safe-area-inset-bottom,0px) + 6px) calc(env(safe-area-inset-left,0px) + 8px);
+  background:var(--paper);border-top:1.5px solid var(--ink)}
+.onglets button{border:0;border-radius:12px;padding:6px 4px;min-height:52px;display:grid;justify-items:center;gap:2px;font:600 .72rem var(--body);color:var(--muted)}
+.onglets button:active{transform:scale(.95)}
+.onglets svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.onglets button[aria-selected="true"]{color:var(--ink)}
+.onglets button[aria-selected="true"] svg{stroke:var(--pink)}
+
+@media (hover:hover) and (pointer:fine){.etape:not(.verrou) .etape-tete:hover{background:var(--line)}}
+@media (prefers-reduced-motion:reduce){
+  .aura-vive,.revelation{animation:none}
+  .carte,.barre .rempli,.carte-tarot .dos,.carte-tarot .face{transition:opacity 200ms ease-out!important}
+  .bulle{transition:opacity 1s ease-in-out;transform:scale(.8)}
+  .bulle.inspire{transform:scale(.8);opacity:1}
+}

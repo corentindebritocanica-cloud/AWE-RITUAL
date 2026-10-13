@@ -1,6 +1,6 @@
-// Service worker unique d'AWE Ritual (portée racine : accueil + v1/ à v6/ = une seule app installée).
+// Service worker unique d'AWE Ritual (portée racine : accueil + v1/ à v7/ = une seule app installée).
 // Code (HTML/CSS/JS) : réseau d'abord, repli sur le cache après 4 s ou hors ligne.
-// Icônes, polices, SDK Firebase : cache d'abord.
+// Icônes, polices, SDK Firebase, astronomy-engine : cache d'abord.
 // ⚠️ CACHE_NAME est mis à jour automatiquement par .github/workflows/auto-version.yml à chaque push.
 
 const CACHE_NAME = 'awe-ritual-r2';
@@ -15,7 +15,8 @@ const CODE = [
   './v3/', './v3/index.html', './v3/style.css', './v3/app.js',
   './v4/', './v4/index.html', './v4/style.css', './v4/app.js',
   './v5/', './v5/index.html', './v5/style.css', './v5/app.js',
-  './v6/', './v6/index.html', './v6/style.css', './v6/app.js'
+  './v6/', './v6/index.html', './v6/style.css', './v6/app.js',
+  './v7/', './v7/index.html', './v7/style.css', './v7/app.js'
 ];
 const ANNEXES = [
   './manifest.json', './icones/icone-192.png', './icones/icone-512.png',
@@ -23,7 +24,8 @@ const ANNEXES = [
 ];
 const SDK = [
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js'
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js',
+  'https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js'
 ];
 
 // Chaque fichier est mis en cache individuellement : un seul 404 ne doit jamais tout annuler.
